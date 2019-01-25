@@ -2,29 +2,28 @@
 
 #include <sstream>
 #include <string>
-#include <string>
 
 #include <json/json.h>
 #include <json/reader.h>
 #include <json/value.h>
 
 #include <jsonrpccpp/client.h>
-#include <jsonrpccpp/client.h>
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 #include <boost/format.hpp>
 
 using namespace std;
-using Json::Value;
 using Json::Reader;
+using Json::Value;
 using jsonrpc::Errors;
 
 class bitcoinRPC {
   jsonrpc::HttpClient connector;
   bitcoindRPCClient bitcoindClient;
 
- public:
-  explicit bitcoinRPC(const string& rpc_addr="http://exch:goodpass@localhost:18443")
+public:
+  explicit bitcoinRPC(
+      const string &rpc_addr = "http://exch:goodpass@localhost:18443")
       : connector(rpc_addr),
         bitcoindClient(connector, jsonrpc::JSONRPC_CLIENT_V1) {}
 
@@ -41,11 +40,11 @@ class bitcoinRPC {
  */
 
 class bitcoinRPCException : public std::exception {
- private:
+private:
   int code;
   std::string msg;
 
- public:
+public:
   explicit bitcoinRPCException(int errcode, const std::string &message) {
     /* Connection error */
     if (errcode == Errors::ERROR_CLIENT_CONNECTOR) {
@@ -53,7 +52,7 @@ class bitcoinRPCException : public std::exception {
       this->msg = removePrefix(message, " -> ");
       /* Authentication error */
     } else if (errcode == Errors::ERROR_RPC_INTERNAL_ERROR &&
-        message.size() == 18) {
+               message.size() == 18) {
       this->code = errcode;
       this->msg = "Failed to authenticate successfully";
       /* Miscellaneous error */
@@ -63,7 +62,7 @@ class bitcoinRPCException : public std::exception {
     }
   }
 
-  ~bitcoinRPCException() throw() {};
+  ~bitcoinRPCException() throw(){};
 
   int getCode() { return code; }
 

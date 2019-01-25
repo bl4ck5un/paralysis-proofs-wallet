@@ -1,5 +1,5 @@
-#ifndef PROJECT_MERKLE_DATA_H
-#define PROJECT_MERKLE_DATA_H
+#ifndef PARALYSIS_PROOF_MERKLE_DATA_H
+#define PARALYSIS_PROOF_MERKLE_DATA_H
 
 #include <stdlib.h>
 
@@ -23,4 +23,4 @@ void merkle_proof_dump(const merkle_proof_t *p);
 void merkle_proof_free(merkle_proof_t *p);
 #endif
 
-#endif //PROJECT_MERKLE_H
+#endif //PARALYSIS_PROOF_MERKLE_H

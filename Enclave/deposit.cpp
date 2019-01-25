@@ -1,14 +1,13 @@
 #include "deposit.h"
-#include <bitcoin/script/sign.h>
 #include "bitcoin/policy/policy.h"
 #include "bitcoin/streams.h"
 #include "bitcoin/utilstrencodings.h"
 #include "bitcoin_helpers.h"
+#include <bitcoin/script/sign.h>
 
 using std::vector;
 
-void DepositParams::_gen_deposit_redeemScript()
-{
+void DepositParams::_gen_deposit_redeemScript() {
   auto exchScriptPubkey = GetScriptForDestination(exchPubkey.GetID());
   auto userScriptPubkey = GetScriptForDestination(userPubkey.GetID());
   this->_redeemScript << OP_IF;
@@ -19,25 +18,22 @@ void DepositParams::_gen_deposit_redeemScript()
   this->_redeemScript << OP_ENDIF;
 }
 
-CScript DepositParams::spend_redeemScript(
-    Action action,
-    const CKey &privKey,
-    const CMutableTransaction &unsignedTx,
-    uint32_t nIn) const
-{
+CScript DepositParams::spend_redeemScript(Action action, const CKey &privKey,
+                                          const CMutableTransaction &unsignedTx,
+                                          uint32_t nIn) const {
   CScript branch;
   switch (action) {
-    //! when user withdraws the ELSE branch is taken
-    case Action::Withdrawal:
-      branch << OP_FALSE;
-      break;
-    case Action::Settlement:
-      branch << OP_TRUE;
+  //! when user withdraws the ELSE branch is taken
+  case Action::Withdrawal:
+    branch << OP_FALSE;
+    break;
+  case Action::Settlement:
+    branch << OP_TRUE;
   }
 
   // note: amount is set to zero since it's not used in SIGVERSION_BASE anyway.
-  auto sighash = SignatureHash(
-      deposit_redeemScript(), unsignedTx, nIn, SIGHASH_ALL, 0, SIGVERSION_BASE);
+  auto sighash = SignatureHash(deposit_redeemScript(), unsignedTx, nIn,
+                               SIGHASH_ALL, 0, SIGVERSION_BASE);
 
   std::vector<unsigned char> vchSig;
   privKey.Sign(sighash, vchSig);
@@ -49,12 +45,10 @@ CScript DepositParams::spend_redeemScript(
   return s;
 }
 
-CTransaction settle_to_single_addr(
-    const CKey &exch_seckey,
-    const vector<Deposit> &deposits,
-    const CBitcoinAddress &addr,
-    uint32_t nlocktime) noexcept(false)
-{
+CTransaction settle_to_single_addr(const CKey &exch_seckey,
+                                   const vector<Deposit> &deposits,
+                                   const CBitcoinAddress &addr,
+                                   uint32_t nlocktime) noexcept(false) {
   CMutableTransaction unsigned_tx;
 
   CAmount sum_in = 0;
@@ -97,13 +91,9 @@ CTransaction settle_to_single_addr(
   auto globalHandle = std::unique_ptr<ECCVerifyHandle>(new ECCVerifyHandle());
   ScriptError serror = SCRIPT_ERR_OK;
   for (uint32_t i = 0; i < deposits.size(); i++) {
-    if (!VerifyScript(
-            t.vin[i].scriptSig,
-            deposits[i].PrevOut().scriptPubKey,
-            nullptr,
-            STANDARD_SCRIPT_VERIFY_FLAGS,
-            TransactionSignatureChecker(&t, i, 0),
-            &serror)) {
+    if (!VerifyScript(t.vin[i].scriptSig, deposits[i].PrevOut().scriptPubKey,
+                      nullptr, STANDARD_SCRIPT_VERIFY_FLAGS,
+                      TransactionSignatureChecker(&t, i, 0), &serror)) {
       throw std::runtime_error(ScriptErrorString(serror));
     }
   }
@@ -111,26 +101,21 @@ CTransaction settle_to_single_addr(
   return t;
 }
 
-//! for each deposit (V, locktime), a new output is (V + delta, locktime + T) is created.
-//! \param newDeposits info (e.g. redeemScripts) for new outputs
-//! \param exchSecretkey exchange's secret key
-//! \param feePayment where we draw the fees
+//! for each deposit (V, locktime), a new output is (V + delta, locktime + T) is
+//! created. \param newDeposits info (e.g. redeemScripts) for new outputs \param
+//! exchSecretkey exchange's secret key \param feePayment where we draw the fees
 //! \param deposits a vector of current active deposits
 //! \param balanceDelta a vector of amounts (signed) denoting balance adjustment
 //! \param lockTimeDelta T in the above formula
 //! \param nLockTime nLockTime for the output transaction
 //! \param feeRate feeRate to use when creating the output transaction
 //! \return a settlement transaction
-CTransaction settle(
-    vector<DepositParams> &newDeposits,
-    const Exchange &exch,
-    const FeePayment &feePayment,
-    const vector<Deposit> &deposits,
-    const vector<int64_t> &balanceDelta,
-    uint32_t lockTimeDelta,
-    uint32_t nLockTime,
-    const CFeeRate &feeRate) noexcept(false)
-{
+CTransaction settle(vector<DepositParams> &newDeposits, const Exchange &exch,
+                    const FeePayment &feePayment,
+                    const vector<Deposit> &deposits,
+                    const vector<int64_t> &balanceDelta, uint32_t lockTimeDelta,
+                    uint32_t nLockTime,
+                    const CFeeRate &feeRate) noexcept(false) {
   // set up crypto context
   auto _ctx = std::unique_ptr<ECCVerifyHandle>(new ECCVerifyHandle());
 
@@ -226,13 +211,9 @@ CTransaction settle(
   // verify the script
   ScriptError serror = SCRIPT_ERR_OK;
   for (uint32_t i = 0; i < deposits.size(); i++) {
-    if (!VerifyScript(
-            t.vin[i].scriptSig,
-            deposits[i].PrevOut().scriptPubKey,
-            nullptr,
-            STANDARD_SCRIPT_VERIFY_FLAGS,
-            TransactionSignatureChecker(&t, i, 0),
-            &serror)) {
+    if (!VerifyScript(t.vin[i].scriptSig, deposits[i].PrevOut().scriptPubKey,
+                      nullptr, STANDARD_SCRIPT_VERIFY_FLAGS,
+                      TransactionSignatureChecker(&t, i, 0), &serror)) {
       throw std::runtime_error(ScriptErrorString(serror));
     } else {
       LL_DEBUG("script verifies");
@@ -242,8 +223,7 @@ CTransaction settle(
   return t;
 }
 
-bool test_settlement()
-{
+bool test_settlement() {
   SelectParams(CBaseChainParams::REGTEST);
   ECC_Start();
 
@@ -257,11 +237,11 @@ bool test_settlement()
 
     const auto &exch_pubKey = exch_secret.GetKey().GetPubKey();
 
-    uint32_t depositExpiration = 1000000;  // 1 million block
+    uint32_t depositExpiration = 1000000; // 1 million block
     vector<DepositParams> params;
     for (const auto &user : users) {
-      params.emplace_back(
-          user.GetKey().GetPubKey(), exch_pubKey, depositExpiration);
+      params.emplace_back(user.GetKey().GetPubKey(), exch_pubKey,
+                          depositExpiration);
     }
 
     for (const auto &p : params) {
@@ -308,8 +288,7 @@ bool test_settlement()
 
 #include <initializer_list>
 
-bool test_settle_all()
-{
+bool test_settle_all() {
   SelectParams(CBaseChainParams::TESTNET);
   ECC_Start();
 
@@ -331,8 +310,8 @@ bool test_settle_all()
     uint32_t depositExpiration = 1000000;
     vector<DepositParams> params;
     for (const auto &u : users) {
-      params.emplace_back(
-          u.GetKey().GetPubKey(), exch_pubkey, depositExpiration);
+      params.emplace_back(u.GetKey().GetPubKey(), exch_pubkey,
+                          depositExpiration);
     }
 
     for (const auto &p : params) {
@@ -399,28 +378,19 @@ bool test_settle_all()
     vector<int64_t> balance_delta = {0, 0, 0, 0};
 
     // lockTime
-    uint32_t nLockTime = 180;   // as long as nLockTime <= blockcount
-    CFeeRate fixedRate(10000);  // FIXME using a static 10000 Satoshi / KB
+    uint32_t nLockTime = 180;  // as long as nLockTime <= blockcount
+    CFeeRate fixedRate(10000); // FIXME using a static 10000 Satoshi / KB
 
     // new deposits
     vector<DepositParams> newDeposits;
-    auto t = settle(
-        newDeposits,
-        exch,
-        feePayment,
-        deposits,
-        balance_delta,
-        100,
-        nLockTime,
-        fixedRate);
+    auto t = settle(newDeposits, exch, feePayment, deposits, balance_delta, 100,
+                    nLockTime, fixedRate);
 
     for (const auto &nd : newDeposits) {
-      LL_NOTICE(
-          "new redeemScript: %s",
-          HexStr(
-              nd.deposit_redeemScript().begin(),
-              nd.deposit_redeemScript().end())
-              .c_str());
+      LL_NOTICE("new redeemScript: %s",
+                HexStr(nd.deposit_redeemScript().begin(),
+                       nd.deposit_redeemScript().end())
+                    .c_str());
     }
 
     // dump the hex

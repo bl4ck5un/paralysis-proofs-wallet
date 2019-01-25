@@ -12,7 +12,7 @@
 #include "script/standard.h"
 #include "uint256.h"
 
-// commented out by Tesseract team
+// commented out by PARALYSIS_PROOF team
 //#include <boost/foreach.hpp>
 #define BOOST_FOREACH(a, v) for (a: v)
 

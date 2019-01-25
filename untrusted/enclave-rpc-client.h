@@ -10,20 +10,25 @@
 namespace exch {
 namespace rpc {
 class AbsClient : public jsonrpc::Client {
- public:
-  AbsClient(jsonrpc::IClientConnector &conn, jsonrpc::clientVersion_t type = jsonrpc::JSONRPC_CLIENT_V2)
+public:
+  AbsClient(jsonrpc::IClientConnector &conn,
+            jsonrpc::clientVersion_t type = jsonrpc::JSONRPC_CLIENT_V2)
       : jsonrpc::Client(conn, type) {}
 
-  bool appendBlock2FIFO(const std::string &param1) throw(jsonrpc::JsonRpcException) {
+  bool
+  appendBlock2FIFO(const std::string &param1) throw(jsonrpc::JsonRpcException) {
     Json::Value p;
     p.append(param1);
     Json::Value result = this->CallMethod("appendBlock2FIFO", p);
     if (result.isBool())
       return result.asBool();
     else
-      throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+      throw jsonrpc::JsonRpcException(
+          jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE,
+          result.toStyledString());
   }
-  bool deposit(const Json::Value &param1, const std::string &param2) throw(jsonrpc::JsonRpcException) {
+  bool deposit(const Json::Value &param1,
+               const std::string &param2) throw(jsonrpc::JsonRpcException) {
     Json::Value p;
     p.append(param1);
     p.append(param2);
@@ -31,28 +36,36 @@ class AbsClient : public jsonrpc::Client {
     if (result.isBool())
       return result.asBool();
     else
-      throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+      throw jsonrpc::JsonRpcException(
+          jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE,
+          result.toStyledString());
   }
-  bool distributeSettlementPkg(const std::string &param1) throw(jsonrpc::JsonRpcException) {
+  bool distributeSettlementPkg(const std::string &param1) throw(
+      jsonrpc::JsonRpcException) {
     Json::Value p;
     p.append(param1);
     Json::Value result = this->CallMethod("distributeSettlementPkg", p);
     if (result.isBool())
       return result.asBool();
     else
-      throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+      throw jsonrpc::JsonRpcException(
+          jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE,
+          result.toStyledString());
   }
-  bool ackSettlementPkg(const std::string &param1) throw(jsonrpc::JsonRpcException) {
+  bool
+  ackSettlementPkg(const std::string &param1) throw(jsonrpc::JsonRpcException) {
     Json::Value p;
     p.append(param1);
     Json::Value result = this->CallMethod("ackSettlementPkg", p);
     if (result.isBool())
       return result.asBool();
     else
-      throw jsonrpc::JsonRpcException(jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString());
+      throw jsonrpc::JsonRpcException(
+          jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE,
+          result.toStyledString());
   }
 };
 
-}
-}
-#endif //JSONRPC_CPP_STUB_EXCH_RPC_ABSCLIENT_H_
+} // namespace rpc
+} // namespace exch
+#endif // JSONRPC_CPP_STUB_EXCH_RPC_ABSCLIENT_H_

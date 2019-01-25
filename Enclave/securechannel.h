@@ -1,13 +1,13 @@
-#ifndef TESSERACT_SECURECHANNEL_H
-#define TESSERACT_SECURECHANNEL_H
+#ifndef PARALYSIS_PROOF_SECURECHANNEL_H
+#define PARALYSIS_PROOF_SECURECHANNEL_H
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 #include "crypto_box.h"
-#include "utils.h"
-#include "pprint.h"
 #include "log.h"
+#include "pprint.h"
+#include "utils.h"
 
 namespace exch {
 namespace enclave {
@@ -19,24 +19,25 @@ using std::string;
 struct Box {
   std::string cipher;
   std::string nonce;
-  Box(const std::string &cipher, const std::string &nonce) : cipher(cipher), nonce(nonce) {}
+  Box(const std::string &cipher, const std::string &nonce)
+      : cipher(cipher), nonce(nonce) {}
 
   size_t size() { return cipher.size() + nonce.size(); }
 };
 
 class Peer {
- private:
+private:
   std::string hostname;
   uint16_t port;
   Nonce nonce;
   unsigned char publicKey[crypto_box_PUBLICKEYBYTES];
   unsigned char secretKey[crypto_box_SECRETKEYBYTES];
- public:
+
+public:
   Peer() = default;
-  Peer(const std::string &hostname, uint16_t port, const std::string &publicKey, const std::string &secretKey) : Peer(
-      hostname,
-      port,
-      publicKey) {
+  Peer(const std::string &hostname, uint16_t port, const std::string &publicKey,
+       const std::string &secretKey)
+      : Peer(hostname, port, publicKey) {
     if (crypto_box_SECRETKEYBYTES != secretKey.size())
       throw "secret key size not right";
     memcpy(this->secretKey, secretKey.data(), secretKey.size());
@@ -49,37 +50,35 @@ class Peer {
     memcpy(this->publicKey, publicKey.data(), publicKey.size());
   }
 
-  const std::string &getHostname() const {
-    return hostname;
-  }
+  const std::string &getHostname() const { return hostname; }
 
-  uint16_t getPort() const {
-    return port;
-  }
+  uint16_t getPort() const { return port; }
 
   std::string getPublicKey() const {
-    return std::string((char *) publicKey, sizeof publicKey);
+    return std::string((char *)publicKey, sizeof publicKey);
   };
 
   std::string getSecretKey() const {
-    return std::string((char *) secretKey, sizeof secretKey);
+    return std::string((char *)secretKey, sizeof secretKey);
   }
 
   string getNonce() const {
-    string n = string((char *) &nonce, sizeof nonce);
+    string n = string((char *)&nonce, sizeof nonce);
     n.insert(n.end(), crypto_box_NONCEBYTES - n.size(), 0x00);
     return n;
   }
 
   Box createBoxToPeer(const Peer &peer, const std::string &msg) {
-    std::string box = nacl_crypto_box(msg, getNonce(), peer.getPublicKey(), this->getSecretKey());
+    std::string box = nacl_crypto_box(msg, getNonce(), peer.getPublicKey(),
+                                      this->getSecretKey());
     Box b(box, getNonce());
     nonce++;
     return b;
   }
 
   std::string openBoxFromPeer(const Box &box, const Peer &peer) {
-    return nacl_crypto_box_open(box.cipher, box.nonce, peer.getPublicKey(), this->getSecretKey());
+    return nacl_crypto_box_open(box.cipher, box.nonce, peer.getPublicKey(),
+                                this->getSecretKey());
   }
 
   bool operator<(const Peer &rhs) const {
@@ -90,13 +89,11 @@ class Peer {
     return hostname == rhs.hostname && port == rhs.port;
   }
 
-  string toString() const {
-    return hostname + ":" + std::to_string(port);
-  }
+  string toString() const { return hostname + ":" + std::to_string(port); }
 };
 
-}
-}
-}
+} // namespace securechannel
+} // namespace enclave
+} // namespace exch
 
-#endif //PROJECT_SECURECHANNEL_H
+#endif // PARALYSIS_PROOF_SECURECHANNEL_H

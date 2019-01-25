@@ -1,5 +1,5 @@
-#ifndef TESSERACT_BITCOIN_SGX_H
-#define TESSERACT_BITCOIN_SGX_H
+#ifndef PARALYSIS_PROOF_BITCOIN_SGX_H
+#define PARALYSIS_PROOF_BITCOIN_SGX_H
 
 static std::string strprintf(const char* fmt, ...) {
   va_list ap;
@@ -11,4 +11,4 @@ static std::string strprintf(const char* fmt, ...) {
 
   return std::string(buf);
 }
-#endif //TESSERACT_SGX_H
+#endif //PARALYSIS_PROOF_SGX_H

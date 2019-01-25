@@ -4,27 +4,34 @@ add_definitions(-DIN_ENCLAVE -DSGX)
 # Build Dependencies #
 ######################
 
+set(secp256k1_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/secp256k1)
+set(secp256k1_LIB ${secp256k1_PREFIX}/lib/libsecp256k1.a)
+set(secp256k1_INCLUDE ${secp256k1_PREFIX}/include)
+
 # for secp256k1
-# TODO: download the source from github install of hosting it in project
 include(ExternalProject)
 ExternalProject_Add(secp256k1-enclave
-        URL ${CMAKE_CURRENT_SOURCE_DIR}/bolos/secp256k1
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/secp256k1
+        GIT_REPOSITORY https://github.com/bitcoin-core/secp256k1
+        GIT_TAG e34ceb333b1c0e6f4115ecbb80c632ac1042fa49
+        UPDATE_COMMAND ""
+        PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/patches/secp256k1.patch
         CONFIGURE_COMMAND ./autogen.sh COMMAND env CPPFLAGS=-fPIC ./configure
         --enable-shared
         --enable-endomorphism
         --enable-module-recovery
+        --enable-benchmark=no
+        --enable-module-ecdh=no
+        --enable-ecmult-static-precomputation=no
+        --enable-coverage=no
         --enable-tests=no
         --enable-openssl-tests=no
         --enable-exhaustive-tests=no
         --with-bignum=no
-        --prefix ${CMAKE_CURRENT_BINARY_DIR}/secp256k1
+        --prefix ${secp256k1_PREFIX}
         BUILD_COMMAND make -j
         BUILD_IN_SOURCE true
         INSTALL_COMMAND make install
         )
-
-set(secp256k1_LIB ${CMAKE_CURRENT_BINARY_DIR}/secp256k1/lib/libsecp256k1.a)
 
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_t.c ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_t.h
@@ -99,7 +106,7 @@ include_directories(
         ${CMAKE_SOURCE_DIR}/common
         bitcoin
         nacl
-        bolos/secp256k1/include
+        ${secp256k1_INCLUDE}
 )
 
 

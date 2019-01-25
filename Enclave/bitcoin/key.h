@@ -28,7 +28,7 @@
  * secure_allocator is defined in allocators.h
  * CPrivKey is a serialized private key, with all parameters included (279 bytes)
  **
- ** Changed by Tesseract Team: use the default allocator instead of secure_allocator
+ ** Changed by PARALYSIS_PROOF Team: use the default allocator instead of secure_allocator
  */
 typedef std::vector<unsigned char> CPrivKey;
 

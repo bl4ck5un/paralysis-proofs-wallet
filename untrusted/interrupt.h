@@ -1,5 +1,5 @@
-#ifndef PROJECT_INTERRUPT_H
-#define PROJECT_INTERRUPT_H
+#ifndef PARALYSIS_PROOF_INTERRUPT_H
+#define PARALYSIS_PROOF_INTERRUPT_H
 
 #include <atomic>
 
@@ -12,7 +12,7 @@ extern std::atomic<bool> quit;
 void set_quite_flag(int n);
 void init_signal_handler();
 
-}
-}
+} // namespace interrupt
+} // namespace exch
 
-#endif //PROJECT_INTERRUPT_H
+#endif // PARALYSIS_PROOF_INTERRUPT_H

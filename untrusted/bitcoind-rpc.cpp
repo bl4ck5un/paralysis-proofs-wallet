@@ -1,17 +1,16 @@
 #include "bitcoind-rpc.h"
 #include "bitcoindrpcclient.h"
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
 
 #include <jsonrpccpp/common/errors.h>
 
 int bitcoinRPC::getblockcount() {
   try {
     return this->bitcoindClient.getblockcount();
-  }
-  catch (const jsonrpc::JsonRpcException &e) {
+  } catch (const jsonrpc::JsonRpcException &e) {
     throw std::runtime_error("jsonrpc error: " + string(e.what()));
   }
 }
@@ -28,8 +27,7 @@ string bitcoinRPC::getblockhash(int block_height) {
 string bitcoinRPC::getblockheader(const string &block_hash, bool format) {
   try {
     return this->bitcoindClient.getblockheader(block_hash, format);
-  }
-  catch (const jsonrpc::JsonRpcException &e) {
+  } catch (const jsonrpc::JsonRpcException &e) {
     bitcoinRPCException err(e.GetCode(), e.GetMessage());
     throw err;
   }
@@ -38,14 +36,14 @@ string bitcoinRPC::getblockheader(const string &block_hash, bool format) {
 Json::Value bitcoinRPC::getblock(const string &block_hash) {
   try {
     return this->bitcoindClient.getblock(block_hash);
-  }
-  catch (const jsonrpc::JsonRpcException &e) {
+  } catch (const jsonrpc::JsonRpcException &e) {
     bitcoinRPCException err(e.GetCode(), e.GetMessage());
     throw err;
   }
 }
 
-Json::Value bitcoinRPC::getrawtransaction(const string &txn_hash, bool JSONformat) {
+Json::Value bitcoinRPC::getrawtransaction(const string &txn_hash,
+                                          bool JSONformat) {
   try {
     Json::Value ret = this->bitcoindClient.getrawtransaction(txn_hash, true);
 
@@ -54,8 +52,7 @@ Json::Value bitcoinRPC::getrawtransaction(const string &txn_hash, bool JSONforma
     }
 
     return ret;
-  }
-  catch (const jsonrpc::JsonRpcException &e) {
+  } catch (const jsonrpc::JsonRpcException &e) {
     bitcoinRPCException err(e.GetCode(), e.GetMessage());
     throw err;
   }

@@ -8,5 +8,5 @@ const char *log_level_strings[] = {
     "WARN", // 2
     "NOTI", // 3
     " LOG", // 4
-    "DEBG" // 5
+    "DEBG"  // 5
 };
