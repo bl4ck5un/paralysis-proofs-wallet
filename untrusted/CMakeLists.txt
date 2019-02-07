@@ -1,30 +1,24 @@
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SGX_COMMON_CFLAGS} -fPIC -Wall -Wno-sign-compare -Wno-deprecated")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++11")
 
-# TODO: move RPC stuff out of the bundle
-set(BRIDGE_SRC
-        bitcoind-rpc.cpp
-        Enclave_u.c
-        Enclave_u.h
-        Utils.cpp
-        ../common/utils.cpp
-        interrupt.cpp
-        )
-
 set_directory_properties(PROPERTIES
         ADDITIONAL_MAKE_CLEAN_FILES Enclave_u.c
         ADDITIONAL_MAKE_CLEAN_FILES Enclave_u.h)
 
 add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_u.c ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_u.h
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Enclave_u.c ${CMAKE_CURRENT_BINARY_DIR}/Enclave_u.h
         COMMAND ${SGX_EDGER8R} --untrusted Enclave.edl
-        --search-path ${CMAKE_SOURCE_DIR}/common/ # Enclave.edl
+        --search-path ${CMAKE_SOURCE_DIR}/common
         --search-path ${SGX_SDK}/include
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_executable(pp
         main.cpp
+        bitcoind-rpc.cpp
+        Utils.cpp
+        interrupt.cpp
+        Enclave_u.c
         ${BRIDGE_SRC})
 
 find_package(Jsoncpp REQUIRED)
@@ -42,6 +36,7 @@ include_directories(
         ${Boost_INCLUDE_DIRS}
         ${OPENSSL_INCLUDE_DIR}
         ${LOG4CXX_INCLUDE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set(RPC_LIB_BUNDLE

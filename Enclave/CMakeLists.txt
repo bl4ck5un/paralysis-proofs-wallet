@@ -34,10 +34,10 @@ ExternalProject_Add(secp256k1-enclave
         )
 
 add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_t.c ${CMAKE_CURRENT_SOURCE_DIR}/Enclave_t.h
-        COMMAND ${SGX_EDGER8R} --trusted ../common/Enclave.edl
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.h
+        COMMAND ${SGX_EDGER8R} --trusted ${CMAKE_SOURCE_DIR}/common/Enclave.edl
         --search-path ${SGX_SDK}/include
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 #####################
@@ -61,33 +61,15 @@ set(BITCOIN_SRC_FILES
         bitcoin/script/standard.cpp)
 
 set(ENCLAVE_SOURCE_FILES
-        # basic stuff
         Enclave_t.c
-        Enclave_t.h
         log.cpp
         pprint.cpp
         utils.cpp
         paralysis.cpp
         bitcoin_helpers.cpp
-        ../common/utils.cpp
-        ../common/json11.cpp
-        ../common/base64.cpp
         enclave_test.cpp
-
-        # fairness
-
-        # enclave state
         deposit.cpp
-
-        # bitcoin
-        ${BITCOIN_SRC_FILES}
-
-        # nacl
-        nacl/tweetnacl.c
-        nacl/randombytes.c
-        nacl/crypto_box/wrapper-keypair.cpp
-        nacl/crypto_box/wrapper-box.cpp
-        nacl/crypto_box/wrapper-open.cpp)
+        ${BITCOIN_SRC_FILES})
 
 add_library(enclave SHARED ${ENCLAVE_SOURCE_FILES})
 
@@ -97,6 +79,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -std=c++11 -nostdinc++"
 
 # set complication parameters
 include_directories(
+        ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${SGX_SDK}/include
         ${SGX_SDK}/include/tlibc
