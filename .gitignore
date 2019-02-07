@@ -35,5 +35,7 @@ build
 cmake-build-debug
 .idea
 Enclave/secp256k1
-Enclave_u.{c,h}
-Enclave_t.{c,h}
+Enclave_u.c
+Enclave_u.h
+Enclave_t.c
+Enclave_t.h
