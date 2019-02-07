@@ -1,30 +1,34 @@
 /* json11
  *
- * json11 is a tiny JSON library for C++11, providing JSON parsing and serialization.
+ * json11 is a tiny JSON library for C++11, providing JSON parsing and
+ * serialization.
  *
- * The core object provided by the library is json11::Json. A Json object represents any JSON
- * value: null, bool, number (int or double), string (std::string), array (std::vector), or
- * object (std::map).
+ * The core object provided by the library is json11::Json. A Json object
+ * represents any JSON value: null, bool, number (int or double), string
+ * (std::string), array (std::vector), or object (std::map).
  *
- * Json objects act like values: they can be assigned, copied, moved, compared for equality or
- * order, etc. There are also helper methods Json::dump, to serialize a Json to a string, and
- * Json::parse (static) to parse a std::string as a Json object.
+ * Json objects act like values: they can be assigned, copied, moved, compared
+ * for equality or order, etc. There are also helper methods Json::dump, to
+ * serialize a Json to a string, and Json::parse (static) to parse a std::string
+ * as a Json object.
  *
- * Internally, the various types of Json object are represented by the JsonValue class
- * hierarchy.
+ * Internally, the various types of Json object are represented by the JsonValue
+ * class hierarchy.
  *
- * A note on numbers - JSON specifies the syntax of number formatting but not its semantics,
- * so some JSON implementations distinguish between integers and floating-point numbers, while
- * some don't. In json11, we choose the latter. Because some JSON implementations (namely
- * Javascript itself) treat all numbers as the same type, distinguishing the two leads
- * to JSON that will be *silently* changed by a round-trip through those implementations.
- * Dangerous! To avoid that risk, json11 stores all numbers as double internally, but also
+ * A note on numbers - JSON specifies the syntax of number formatting but not
+ * its semantics, so some JSON implementations distinguish between integers and
+ * floating-point numbers, while some don't. In json11, we choose the latter.
+ * Because some JSON implementations (namely Javascript itself) treat all
+ * numbers as the same type, distinguishing the two leads to JSON that will be
+ * *silently* changed by a round-trip through those implementations. Dangerous!
+ * To avoid that risk, json11 stores all numbers as double internally, but also
  * provides integer helpers.
  *
- * Fortunately, double-precision IEEE754 ('double') can precisely store any integer in the
- * range +/-2^53, which includes every 'int' on most systems. (Timestamps often use int64
- * or long long to avoid the Y2038K problem; a double storing microseconds since some epoch
- * will be exact for +/- 275 years.)
+ * Fortunately, double-precision IEEE754 ('double') can precisely store any
+ * integer in the range +/-2^53, which includes every 'int' on most systems.
+ * (Timestamps often use int64 or long long to avoid the Y2038K problem; a
+ * double storing microseconds since some epoch will be exact for +/- 275
+ * years.)
  */
 
 /* Copyright (c) 2013 Dropbox, Inc.
@@ -50,11 +54,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <initializer_list>
 #include <map>
 #include <memory>
-#include <initializer_list>
+#include <string>
+#include <vector>
 
 #ifdef _MSC_VER
 #if _MSC_VER <= 1800 // VS 2013
@@ -70,18 +74,14 @@
 
 namespace json11 {
 
-enum JsonParse {
-  STANDARD, COMMENTS
-};
+enum JsonParse { STANDARD, COMMENTS };
 
 class JsonValue;
 
 class Json final {
- public:
+public:
   // Types
-  enum Type {
-    NUL, NUMBER, BOOL, STRING, ARRAY, OBJECT
-  };
+  enum Type { NUL, NUMBER, BOOL, STRING, ARRAY, OBJECT };
 
   // Array and object typedefs
   typedef std::vector<Json> array;
@@ -95,27 +95,33 @@ class Json final {
   Json(bool value);               // BOOL
   Json(const std::string &value); // STRING
   Json(std::string &&value);      // STRING
-  Json(const char *value);       // STRING
+  Json(const char *value);        // STRING
   Json(const array &values);      // ARRAY
   Json(array &&values);           // ARRAY
   Json(const object &values);     // OBJECT
   Json(object &&values);          // OBJECT
 
   // Implicit constructor: anything with a to_json() function.
-  template<class T, class = decltype(&T::to_json)>
+  template <class T, class = decltype(&T::to_json)>
   Json(const T &t) : Json(t.to_json()) {}
 
   // Implicit constructor: map-like objects (std::map, std::unordered_map, etc)
-  template<class M, typename std::enable_if<
-      std::is_constructible<std::string, decltype(std::declval<M>().begin()->first)>::value
-          && std::is_constructible<Json, decltype(std::declval<M>().begin()->second)>::value,
-      int>::type = 0>
+  template <
+      class M,
+      typename std::enable_if<
+          std::is_constructible<
+              std::string, decltype(std::declval<M>().begin()->first)>::value &&
+              std::is_constructible<
+                  Json, decltype(std::declval<M>().begin()->second)>::value,
+          int>::type = 0>
   Json(const M &m) : Json(object(m.begin(), m.end())) {}
 
-  // Implicit constructor: vector-like objects (std::list, std::vector, std::set, etc)
-  template<class V, typename std::enable_if<
-      std::is_constructible<Json, decltype(*std::declval<V>().begin())>::value,
-      int>::type = 0>
+  // Implicit constructor: vector-like objects (std::list, std::vector,
+  // std::set, etc)
+  template <class V, typename std::enable_if<
+                         std::is_constructible<
+                             Json, decltype(*std::declval<V>().begin())>::value,
+                         int>::type = 0>
   Json(const V &v) : Json(array(v.begin(), v.end())) {}
 
   // This prevents Json(some_pointer) from accidentally producing a bool. Use
@@ -132,9 +138,10 @@ class Json final {
   bool is_array() const { return type() == ARRAY; }
   bool is_object() const { return type() == OBJECT; }
 
-  // Return the enclosed value if this is a number, 0 otherwise. Note that json11 does not
-  // distinguish between integer and non-integer numbers - number_value() and int_value()
-  // can both be applied to a NUMBER-typed object.
+  // Return the enclosed value if this is a number, 0 otherwise. Note that
+  // json11 does not distinguish between integer and non-integer numbers -
+  // number_value() and int_value() can both be applied to a NUMBER-typed
+  // object.
   double number_value() const;
   int int_value() const;
 
@@ -142,9 +149,11 @@ class Json final {
   bool bool_value() const;
   // Return the enclosed string if this is a string, "" otherwise.
   const std::string &string_value() const;
-  // Return the enclosed std::vector if this is an array, or an empty vector otherwise.
+  // Return the enclosed std::vector if this is an array, or an empty vector
+  // otherwise.
   const array &array_items() const;
-  // Return the enclosed std::map if this is an object, or an empty map otherwise.
+  // Return the enclosed std::map if this is an object, or an empty map
+  // otherwise.
   const object &object_items() const;
 
   // Return a reference to arr[i] if this is an array, Json() otherwise.
@@ -161,11 +170,9 @@ class Json final {
   }
 
   // Parse. If parse fails, return Json() and assign an error message to err.
-  static Json parse(const std::string &in,
-                    std::string &err,
+  static Json parse(const std::string &in, std::string &err,
                     JsonParse strategy = JsonParse::STANDARD);
-  static Json parse(const char *in,
-                    std::string &err,
+  static Json parse(const char *in, std::string &err,
                     JsonParse strategy = JsonParse::STANDARD) {
     if (in) {
       return parse(std::string(in), err, strategy);
@@ -175,16 +182,13 @@ class Json final {
     }
   }
   // Parse multiple objects, concatenated or separated by whitespace
-  static std::vector<Json> parse_multi(
-      const std::string &in,
-      std::string::size_type &parser_stop_pos,
-      std::string &err,
-      JsonParse strategy = JsonParse::STANDARD);
+  static std::vector<Json>
+  parse_multi(const std::string &in, std::string::size_type &parser_stop_pos,
+              std::string &err, JsonParse strategy = JsonParse::STANDARD);
 
-  static inline std::vector<Json> parse_multi(
-      const std::string &in,
-      std::string &err,
-      JsonParse strategy = JsonParse::STANDARD) {
+  static inline std::vector<Json>
+  parse_multi(const std::string &in, std::string &err,
+              JsonParse strategy = JsonParse::STANDARD) {
     std::string::size_type parser_stop_pos;
     return parse_multi(in, parser_stop_pos, err, strategy);
   }
@@ -198,19 +202,21 @@ class Json final {
 
   /* has_shape(types, err)
    *
-   * Return true if this is a JSON object and, for each item in types, has a field of
-   * the given type. If not, return false and set err to a descriptive message.
+   * Return true if this is a JSON object and, for each item in types, has a
+   * field of the given type. If not, return false and set err to a descriptive
+   * message.
    */
   typedef std::initializer_list<std::pair<std::string, Type>> shape;
   bool has_shape(const shape &types, std::string &err) const;
 
- private:
+private:
   std::shared_ptr<JsonValue> m_ptr;
 };
 
-// Internal class hierarchy - JsonValue objects are not exposed to users of this API.
+// Internal class hierarchy - JsonValue objects are not exposed to users of this
+// API.
 class JsonValue {
- protected:
+protected:
   friend class Json;
   friend class JsonInt;
   friend class JsonDouble;

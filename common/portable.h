@@ -9,4 +9,4 @@
 #define printf_sgx printf
 #endif
 
-#endif //PARALYSIS_PROOF_PORTABLE_H
+#endif // PARALYSIS_PROOF_PORTABLE_H

@@ -349,9 +349,10 @@ bool test_settle_all() {
         "0121038936a015ce9d37200f87640920677c58c93cf84c0bfd7f428524d87dd66da62c"
         "572d1600";
 
-
-    CTransaction user_deposit_tx = decode_transaction_from_hex(__user_deposit_tx_hex);
-    CTransaction exch_deposit_tx = decode_transaction_from_hex(__exch_deposit_tx_hex);
+    CTransaction user_deposit_tx =
+        decode_transaction_from_hex(__user_deposit_tx_hex);
+    CTransaction exch_deposit_tx =
+        decode_transaction_from_hex(__exch_deposit_tx_hex);
 
     // load user deposit
     Deposit alice(params[0], user_deposit_tx, 0);

@@ -1,19 +1,22 @@
 #include "utils.h"
 
-#include <stdexcept>
-#include <string>
-#include <stdio.h>
-#include <vector>
 #include <cstring>
+#include <stdexcept>
+#include <stdio.h>
+#include <string>
+#include <vector>
 
 #include "portable.h"
 
 using std::to_string;
 
 static int char2int(char c) {
-  if (c >= '0' && c <= '9') return c - '0';
-  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  if (c >= '0' && c <= '9')
+    return c - '0';
+  if (c >= 'A' && c <= 'F')
+    return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f')
+    return c - 'a' + 10;
   throw std::invalid_argument("bad hex");
 }
 
@@ -62,7 +65,7 @@ void hd(const char *title, void const *data, size_t len) {
 
     for (c = i; c < i + 8; c++) /* left half of hex dump */
       if (c < len)
-        printf_sgx("%02X ", ((unsigned char const *) data)[c]);
+        printf_sgx("%02X ", ((unsigned char const *)data)[c]);
       else
         printf_sgx("   "); /* pad if short line */
 
@@ -70,7 +73,7 @@ void hd(const char *title, void const *data, size_t len) {
 
     for (c = i + 8; c < i + 16; c++) /* right half of hex dump */
       if (c < len)
-        printf_sgx("%02X ", ((unsigned char const *) data)[c]);
+        printf_sgx("%02X ", ((unsigned char const *)data)[c]);
       else
         printf_sgx("   "); /* pad if short line */
 
@@ -78,9 +81,9 @@ void hd(const char *title, void const *data, size_t len) {
 
     for (c = i; c < i + 16; c++) /* ASCII dump */
       if (c < len)
-        if (((unsigned char const *) data)[c] >= 32 &&
-            ((unsigned char const *) data)[c] < 127)
-          printf_sgx("%c", ((char const *) data)[c]);
+        if (((unsigned char const *)data)[c] >= 32 &&
+            ((unsigned char const *)data)[c] < 127)
+          printf_sgx("%c", ((char const *)data)[c]);
         else
           printf_sgx("."); /* put this for non-printables */
       else

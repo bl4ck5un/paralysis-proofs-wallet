@@ -23,4 +23,4 @@ void merkle_proof_dump(const merkle_proof_t *p);
 void merkle_proof_free(merkle_proof_t *p);
 #endif
 
-#endif //PARALYSIS_PROOF_MERKLE_H
+#endif // PARALYSIS_PROOF_MERKLE_H

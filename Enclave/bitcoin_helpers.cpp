@@ -30,6 +30,10 @@ std::string ScriptToAsmStr(const CScript &script) {
   return str;
 }
 
+std::string ScriptToStr(const CScript &script) {
+  return HexStr(script.begin(), script.end());
+}
+
 //! generate script lockTime << OP_CLTV << OP_DROP << [userPubkey] <<
 //! OP_CHECKSIG \param userPubkey \param lockTime \return script
 CScript generate_simple_cltv_script(const CPubKey &userPubkey,
@@ -76,7 +80,7 @@ bool validate_redeemScript(const CScript &redeemScript,
 }
 
 CTransaction decode_transaction_from_hex(const std::string &strHexTx,
-                                 bool fTryNoWitness) {
+                                         bool fTryNoWitness) {
   MUST_TRUE(IsHex(strHexTx));
 
   CMutableTransaction tx;

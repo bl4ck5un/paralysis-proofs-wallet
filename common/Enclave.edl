@@ -1,18 +1,17 @@
 enclave {
-    from "sgx_tstdc.edl" import *;
-    from "sgx_tae_service.edl" import *;
+  from "sgx_tstdc.edl" import *;
+  from "sgx_tae_service.edl" import *;
 
-    include "../common/common.h"
-    include "sgx_tseal.h"
-    include "sgx_trts.h"
-    include "sgx_tae_service.h"
+  include "../common/common.h" include "sgx_tseal.h" include
+          "sgx_trts.h" include "sgx_tae_service.h"
 
-    trusted {
-        public int enclaveTest();
-    };
+      trusted {
+  public
+    int enclaveTest();
+  };
 
-    untrusted {
-        int ocall_print_to_std([in, string] const char *str);
-        int ocall_print_to_err([in, string] const char *str);
-    };
+  untrusted {
+    int ocall_print_to_std([ in, string ] const char *str);
+    int ocall_print_to_err([ in, string ] const char *str);
+  };
 };
