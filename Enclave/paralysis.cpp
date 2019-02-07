@@ -2,9 +2,12 @@
 
 #include "utils.h"
 
+const size_t LifeSignal::nOutForLifeSignalOutput = 0;
+
 void test_paralysis() {
   SelectParams(CBaseChainParams::REGTEST);
   ECC_Start();
+  auto _ = std::unique_ptr<ECCVerifyHandle>(new ECCVerifyHandle());
 
   try {
 
@@ -23,8 +26,7 @@ void test_paralysis() {
     LL_DEBUG("sgx: %s", sgx.ToString().c_str());
 
     Wallet wallet(users, sgx);
-    LL_DEBUG("wallet redeemScript=%s",
-             ScriptToAsmStr(wallet.redeemScript()).c_str());
+    LL_DEBUG("%s", wallet.ToString().c_str());
 
     string dust_tx_hex =
         "020000000001023ae39b3324379dcb2258f42e6270155f8393e5d14976b8bc419f1875"
@@ -59,14 +61,22 @@ void test_paralysis() {
     auto wallet_op =
         OutPointWithTx(wallet_deposit_tx_hex, wallet.scriptPubkey());
 
-    CFeeRate fixedRate(10000); // FIXME using a static 10000 Satoshi / KB
-    LifeSignal ls(users[0].GetPubKey(), 10);
+    CFeeRate fixed_rate(10000); // FIXME using a static 10000 Satoshi / KB
 
-    LL_DEBUG("life signal script: %s",
-             ScriptToAsmStr(ls.GetRedeemScript()).c_str());
+    auto tuple =
+        wallet.accuse(dust_op, wallet_op, 0, sgx.GetSecret(), fixed_rate);
+    LifeSignal ls = std::get<0>(tuple);
+    CTransaction tx1 = std::get<1>(tuple);
+    CTransaction tx2 = std::get<2>(tuple);
 
-    auto t = ls.into_transaction(sgx.GetSecret(), dust_op, fixedRate);
-    LL_DEBUG("life signal (hex): %s", tx2hex(t).c_str());
+    auto life_signal_tx_hex = tx2hex(tx1);
+    auto tx_appeal =
+        wallet.appeal(0, users[0].GetSecret(),
+                      OutPointWithTx(life_signal_tx_hex, ls.GetScriptPubKey()));
+
+    LL_DEBUG("tx1 (hex): %s", tx2hex(tx1).c_str());
+    LL_DEBUG("tx2 (hex): %s", tx2hex(tx2).c_str());
+    LL_DEBUG("tx_appeal (hex): %s", tx2hex(tx_appeal).c_str());
   }
   CATCH_STD_AND_ALL_NO_RET
 

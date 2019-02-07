@@ -87,7 +87,7 @@ public:
                                 const CMutableTransaction &unsigned_tx,
                                 uint32_t which_to_sign) const {
     MUST_TRUE(secret.GetPubKey() == this->key1);
-    CScript branch = OP_TRUE;
+    auto branch = OP_TRUE;
     auto sighash = SignatureHash(_redeemScript, unsigned_tx, which_to_sign,
                                  SIGHASH_ALL, 0, SIGVERSION_BASE);
 
@@ -95,12 +95,22 @@ public:
     secret.Sign(sighash, vchSig);
     vchSig.push_back((unsigned char)SIGHASH_ALL);
 
-    return CScript() << vchSig << ToByteVector(secret.GetPubKey()) << branch
-                     << ToByteVector(_redeemScript);
+    auto sc = CScript();
+
+    sc << vchSig;
+    LL_DEBUG("here");
+    sc << ToByteVector(secret.GetPubKey());
+    LL_DEBUG("thus far: %s", ScriptToAsmStr(sc).c_str());
+    sc << branch;
+    LL_DEBUG("here");
+    sc << ToByteVector(_redeemScript);
+    LL_DEBUG("here");
+
+    return sc;
   }
 
-  const CScript &scriptSigByKey2(const CMutableTransaction &unsigned_tx,
-                                 uint32_t which_to_sign) const {
+  const CScript scriptSigByKey2(const CMutableTransaction &unsigned_tx,
+                                uint32_t which_to_sign) const {
     auto branch = OP_FALSE;
     auto sighash = SignatureHash(_redeemScript, unsigned_tx, which_to_sign,
                                  SIGHASH_ALL, 0, SIGVERSION_BASE);
@@ -135,7 +145,6 @@ public:
         refund, GetScriptForDestination(dust_seckey.GetPubKey().GetID()));
 
     // spend the dust input
-    auto _ = std::unique_ptr<ECCVerifyHandle>(new ECCVerifyHandle());
     CBasicKeyStore tmp;
     tmp.AddKey(dust_seckey);
     if (!SignSignature(tmp, dust_op.GetPrevOut().scriptPubKey, unsigned_tx, 0,
@@ -146,6 +155,9 @@ public:
     LL_DEBUG("done signing");
     return CTransaction(unsigned_tx);
   }
+
+  // this always return zero, because the life signal is always the first output
+  const static size_t nOutForLifeSignalOutput;
 };
 
 using std::vector;
@@ -162,14 +174,12 @@ private:
   vector<Party> _users;
   Party _sgx;
   vector<LifeSignal> lift_signals;
-  CScript _redeemScript;
-  CScript _scriptPubKey;
 
   CScript sigScriptBySGX(const CKey &sgx_seckey,
                          const CMutableTransaction &unsigned_tx,
                          uint32_t which_to_sign) {
     auto branch = OP_TRUE;
-    auto sighash = SignatureHash(_redeemScript, unsigned_tx, which_to_sign,
+    auto sighash = SignatureHash(redeemScript(), unsigned_tx, which_to_sign,
                                  SIGHASH_ALL, 0, SIGVERSION_BASE);
 
     bytes vchSig;
@@ -178,7 +188,7 @@ private:
     vchSig.push_back((unsigned char)SIGHASH_ALL);
 
     return CScript() << vchSig << ToByteVector(sgx_seckey.GetPubKey()) << branch
-                     << ToByteVector(_redeemScript);
+                     << ToByteVector(redeemScript());
   }
 
 public:
@@ -188,28 +198,97 @@ public:
     for (const auto &p : users) {
       lift_signals.emplace_back(p.GetPubKey(), 10);
     }
-
-    auto n_user = EncodeOP_N(_users.size());
-
-    _redeemScript << OP_IF;
-    _redeemScript += _sgx.ScriptPubkey();
-    _redeemScript << OP_ELSE << n_user;
-
-    for (const auto &u : users) {
-      _redeemScript << ToByteVector(u.GetPubKey());
-    }
-
-    _redeemScript << n_user << OP_CHECKMULTISIG << OP_ENDIF;
-
-    _scriptPubKey = GetScriptForDestination(CScriptID(_redeemScript));
+  }
+  const CScript scriptPubkey() const {
+    return GetScriptForDestination(CScriptID(redeemScript()));
   }
 
-  const CScript &scriptPubkey() const { return _scriptPubKey; }
+  const CScript redeemScript() const {
+    CScript sc;
+    sc << OP_IF;
+    sc += _sgx.ScriptPubkey();
+    sc << OP_ELSE << EncodeOP_N(_users.size());
 
-  const CScript &redeemScript() const { return _redeemScript; }
+    for (const auto &u : _users) {
+      sc << ToByteVector(u.GetPubKey());
+    }
+
+    sc << EncodeOP_N(_users.size()) << OP_CHECKMULTISIG << OP_ENDIF;
+
+    return sc;
+  }
 
   const CBitcoinAddress Address() const {
-    return CBitcoinAddress(CScriptID(_redeemScript));
+    return CBitcoinAddress(CScriptID(redeemScript()));
+  }
+
+  string ToString() const { return "wallet address=" + Address().ToString(); }
+
+  void remove_user(size_t user_index) {
+    this->_users.erase(_users.begin() + user_index);
+  }
+
+  CTransaction appeal(size_t user_index, const CKey &user_secret,
+                      const OutPointWithTx &life_signal_op) {
+    auto ls = this->lift_signals[user_index];
+
+    if (life_signal_op.GetPrevOut().scriptPubKey != ls.GetScriptPubKey()) {
+      throw std::invalid_argument("mismatch scriptPubkey");
+    }
+
+    CMutableTransaction unsigned_tx;
+    unsigned_tx.vin.emplace_back(life_signal_op.GetOutPoint());
+    unsigned_tx.vout.emplace_back(0, CScript() << OP_TRUE);
+
+    LL_DEBUG("done creating tx");
+    auto sig = ls.scriptSigByKey1(user_secret, unsigned_tx, 0);
+    unsigned_tx.vin[0].scriptSig = sig;
+
+    LL_DEBUG("done signing");
+
+    return CTransaction(unsigned_tx);
+  }
+
+  std::tuple<LifeSignal, CTransaction, CTransaction>
+  accuse(const OutPointWithTx &dust_op, const OutPointWithTx &wallet_op,
+         size_t user_index, const CKey &sgx_seckey, const CFeeRate &fee_rate) {
+    auto ls_tx = this->lift_signals[user_index].into_transaction(
+        sgx_seckey, dust_op, fee_rate);
+    auto ls = this->lift_signals[user_index];
+
+    if (wallet_op.GetPrevOut().scriptPubKey != this->scriptPubkey()) {
+      LL_CRITICAL("wallet scriptPubkey: %s",
+                  ScriptToAsmStr(wallet_op.GetPrevOut().scriptPubKey).c_str());
+      throw std::invalid_argument("wallet uxto can't be spent");
+    }
+
+    remove_user(user_index);
+
+    CMutableTransaction unsigned_tx;
+    unsigned_tx.nVersion = CTransaction::CURRENT_VERSION;
+
+    // populate the life signal transaction and wallet outpoint
+    unsigned_tx.vin.emplace_back(ls_tx.GetHash(),
+                                 LifeSignal::nOutForLifeSignalOutput,
+                                 ls.GetRelativeTimeout());
+    unsigned_tx.vin.emplace_back(wallet_op.GetOutPoint());
+
+    // populate the output
+    unsigned_tx.vout.emplace_back(wallet_op.GetPrevOut().nValue,
+                                  this->scriptPubkey());
+
+    // sign
+    auto lifesignal_sigScript = ls.scriptSigByKey2(unsigned_tx, 0);
+    auto wallet_sigScript = this->sigScriptBySGX(sgx_seckey, unsigned_tx, 1);
+
+    unsigned_tx.vin[0].scriptSig = lifesignal_sigScript;
+    unsigned_tx.vin[1].scriptSig = wallet_sigScript;
+
+    LL_DEBUG("done signing");
+
+    CTransaction tx2(unsigned_tx);
+
+    return std::make_tuple(ls, ls_tx, tx2);
   }
 };
 
