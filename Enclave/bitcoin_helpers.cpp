@@ -52,7 +52,7 @@ CScript generate_deposit_script(const CPubKey &userPubkey,
 //! create a p2sh address from script
 //! \param script
 //! \return
-CBitcoinAddress create_p2sh_address(const CScript &script) {
+CBitcoinAddress script_to_address(const CScript &script) {
   return CBitcoinAddress(CScriptID(script));
 }
 
@@ -75,10 +75,11 @@ bool validate_redeemScript(const CScript &redeemScript,
   }
 }
 
-bool DecodeHexTx(CMutableTransaction &tx, const std::string &strHexTx,
-                 bool fTryNoWitness) {
-  if (!IsHex(strHexTx))
-    return false;
+CTransaction decode_transaction_from_hex(const std::string &strHexTx,
+                                 bool fTryNoWitness) {
+  MUST_TRUE(IsHex(strHexTx));
+
+  CMutableTransaction tx;
   vector<unsigned char> txData(ParseHex(strHexTx));
   if (fTryNoWitness) {
     CDataStream ssData(txData, SER_NETWORK,
@@ -86,22 +87,18 @@ bool DecodeHexTx(CMutableTransaction &tx, const std::string &strHexTx,
     try {
       ssData >> tx;
       if (ssData.eof()) {
-        return true;
+        throw std::invalid_argument("invalid input");
       }
     } catch (const std::exception &) {
       // Fall through.
     }
   }
   CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
-  try {
-    ssData >> tx;
-  } catch (const std::exception &) {
-    return false;
-  }
-  return true;
+  ssData >> tx;
+  return CTransaction(tx);
 }
 
-CKey seckey_from_str(const std::string &str) {
+CKey secret_key_from_string_hash(const std::string &str) {
   auto bytes = Hash(str.begin(), str.end());
   CKey key;
   key.Set(bytes.begin(), bytes.end(), true);

@@ -229,11 +229,11 @@ bool test_settlement() {
 
   bool ret = true;
   try {
-    CBitcoinSecret exch_secret(seckey_from_str("exch"));
+    CBitcoinSecret exch_secret(secret_key_from_string_hash("exch"));
 
     vector<CBitcoinSecret> users;
-    users.emplace_back(seckey_from_str("alice"));
-    users.emplace_back(seckey_from_str("bob"));
+    users.emplace_back(secret_key_from_string_hash("alice"));
+    users.emplace_back(secret_key_from_string_hash("bob"));
 
     const auto &exch_pubKey = exch_secret.GetKey().GetPubKey();
 
@@ -257,9 +257,7 @@ bool test_settlement() {
         "39e571bea1603a8700ca9a3b0000000017a914e7f1469b5d6f65bcce9c91be45e519ba"
         "23088aa98794000000";
 
-    CMutableTransaction _deposit;
-    DecodeHexTx(_deposit, _deposit_tx_hex, false);
-    CTransaction deposit_tx(_deposit);
+    CTransaction deposit_tx = decode_transaction_from_hex(_deposit_tx_hex);
 
     Deposit alice_deposit(params[0], deposit_tx, 1);
     Deposit bob_deposit(params[1], deposit_tx, 2);
@@ -294,12 +292,12 @@ bool test_settle_all() {
 
   bool ret = true;
   try {
-    CBitcoinSecret exch_secret(seckey_from_str("exch"));
+    CBitcoinSecret exch_secret(secret_key_from_string_hash("exch"));
 
     // simulate a bunch of users
     vector<CBitcoinSecret> users;
     for (auto name : {"alice", "bob", "carol", "david"}) {
-      users.emplace_back(seckey_from_str(name));
+      users.emplace_back(secret_key_from_string_hash(name));
     }
 
     // simulate the exchange
@@ -351,13 +349,9 @@ bool test_settle_all() {
         "0121038936a015ce9d37200f87640920677c58c93cf84c0bfd7f428524d87dd66da62c"
         "572d1600";
 
-    CMutableTransaction _user_deposit;
-    DecodeHexTx(_user_deposit, __user_deposit_tx_hex, false);
-    CTransaction user_deposit_tx(_user_deposit);
 
-    CMutableTransaction _exch_deposit;
-    DecodeHexTx(_exch_deposit, __exch_deposit_tx_hex, false);
-    CTransaction exch_deposit_tx(_exch_deposit);
+    CTransaction user_deposit_tx = decode_transaction_from_hex(__user_deposit_tx_hex);
+    CTransaction exch_deposit_tx = decode_transaction_from_hex(__exch_deposit_tx_hex);
 
     // load user deposit
     Deposit alice(params[0], user_deposit_tx, 0);

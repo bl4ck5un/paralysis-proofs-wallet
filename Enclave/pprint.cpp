@@ -1,26 +1,6 @@
 #include "pprint.h"
 #include "utils.h"
 
-using namespace utils;
-void dump_buf(const char *title, unsigned char *buf, size_t len) {
-  hexdump(title, buf, len);
-}
-
-void string_dump(const char *title, void const *data, size_t len) {
-  unsigned int i;
-
-  if (!data)
-    return;
-
-  printf_std("%s\n", title);
-
-  /* ASCII dump */
-  for (i = 0; i < len; i++) {
-    printf_std("%c", ((unsigned char const *)data)[i]);
-  }
-  printf_std("\n");
-}
-
 void hexdump(const char *title, void const *data, size_t len) {
   unsigned int i;
   unsigned int r, c;

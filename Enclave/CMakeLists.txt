@@ -66,8 +66,8 @@ set(ENCLAVE_SOURCE_FILES
         Enclave_t.h
         log.cpp
         pprint.cpp
-        bytestream.cpp
         utils.cpp
+        paralysis.cpp
         bitcoin_helpers.cpp
         ../common/utils.cpp
         ../common/json11.cpp
@@ -75,7 +75,6 @@ set(ENCLAVE_SOURCE_FILES
         enclave_test.cpp
 
         # fairness
-        securechannel.cpp
 
         # enclave state
         deposit.cpp

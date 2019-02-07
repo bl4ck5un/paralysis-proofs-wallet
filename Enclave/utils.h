@@ -55,18 +55,9 @@ extern "C" {
 #endif
 
 int printf_std(const char *fmt, ...);
-int printf_err(const char *fmt, ...);
 
 #ifdef __cplusplus
 };
 #endif
 
-namespace utils {
-using std::string;
-using std::vector;
-
-string mbedtls_error(int ret);
-vector<uint8_t> sgx_unseal_data_cpp(const sgx_sealed_data_t *secret,
-                                    size_t len);
-} // namespace utils
 #endif // PARALYSIS_PROOF_UTILS_H
