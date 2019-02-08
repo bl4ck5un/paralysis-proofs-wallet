@@ -90,14 +90,10 @@ void test_paralysis() {
     for (const auto &name : names) {
       users.emplace_back(name);
     }
-    for (const auto &user : users) {
-      LL_DEBUG("user: %s", user.ToString().c_str());
-    }
 
-    auto sgx = Party("sgx");
-    LL_DEBUG("sgx: %s", sgx.ToString().c_str());
+    Party sgx("sgx");
 
-    Wallet wallet(users, sgx, 10);
+    Wallet wallet(users, sgx, 144);
     LL_DEBUG("%s", wallet.ToString().c_str());
 
     string dust_tx_hex =

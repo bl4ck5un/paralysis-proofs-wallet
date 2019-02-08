@@ -233,7 +233,19 @@ public:
     return CBitcoinAddress(CScriptID(redeemScript()));
   }
 
-  string ToString() const { return "wallet address=" + Address().ToString(); }
+#include <stdio.h>
+
+  string ToString() const {
+    string info;
+    info += "TEE manager: " + _sgx.ToString() + "\n";
+    info += "Currently serving " + std::to_string(_users.size()) + " users\n";
+    for (const auto &user : _users) {
+      info += user.ToString() + "\n";
+    }
+
+    info += "address=" + Address().ToString();
+    return info;
+  }
 
   CTransaction appeal(size_t user_index, const CKey &user_secret,
                       const OutPointWithTx &life_signal_op) {
