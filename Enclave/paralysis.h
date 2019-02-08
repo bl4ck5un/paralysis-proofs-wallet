@@ -13,8 +13,7 @@
 
 using std::move;
 using std::string;
-
-void test_paralysis();
+using std::vector;
 
 class Party {
 private:
@@ -66,7 +65,7 @@ public:
   LifeSignal(const CPubKey &key1, uint32_t relative_timeout)
       : key1(key1.begin(), key1.end()),
         key2(secret_key_from_string_hash("tmp secret")),
-        relative_timeout(relative_timeout), amount(0.0001 * COIN) {
+        relative_timeout(relative_timeout), amount(10000) {
     _redeemScript << OP_IF;
     _redeemScript += GetScriptForDestination(key1.GetID());
     _redeemScript << OP_ELSE << relative_timeout << OP_CHECKSEQUENCEVERIFY
@@ -98,13 +97,9 @@ public:
     auto sc = CScript();
 
     sc << vchSig;
-    LL_DEBUG("here");
     sc << ToByteVector(secret.GetPubKey());
-    LL_DEBUG("thus far: %s", ScriptToAsmStr(sc).c_str());
     sc << branch;
-    LL_DEBUG("here");
     sc << ToByteVector(_redeemScript);
-    LL_DEBUG("here");
 
     return sc;
   }
@@ -132,11 +127,15 @@ public:
     }
 
     auto sum_in = dust_op.GetPrevOut().nValue;
+    LL_DEBUG("sum_in: %d", sum_in);
+
     auto fees = fee_rate.GetFee(tx_size(1, 2));
     auto refund = sum_in - fees - this->amount;
 
     LL_DEBUG("fee: %d", fees);
-    LL_DEBUG("amount: %d", (sum_in - fees));
+    LL_DEBUG("refund: %d", refund);
+
+    MUST_TRUE(refund >= 0);
 
     CMutableTransaction unsigned_tx;
     unsigned_tx.vin.emplace_back(dust_op.GetOutPoint());
@@ -159,8 +158,6 @@ public:
   // this always return zero, because the life signal is always the first output
   const static size_t nOutForLifeSignalOutput;
 };
-
-using std::vector;
 
 static opcodetype EncodeOP_N(int n) {
   assert(n >= 0 && n <= 16);
@@ -192,30 +189,44 @@ private:
   }
 
 public:
-  Wallet(const vector<Party> &users, const Party &sgx)
+  Wallet(const vector<Party> &users, const Party &sgx,
+         uint32_t life_signal_span)
       : _users(users), _sgx(sgx) {
     // use a relative_timeout of 10
     for (const auto &p : users) {
-      lift_signals.emplace_back(p.GetPubKey(), 10);
+      lift_signals.emplace_back(p.GetPubKey(), life_signal_span);
     }
   }
-  const CScript scriptPubkey() const {
-    return GetScriptForDestination(CScriptID(redeemScript()));
-  }
+  const CScript
+  redeemScript(const vector<size_t> &excluded_indices = {}) const {
+    vector<Party> current_users;
+    for (size_t i = 0; i < _users.size(); i++) {
+      // if i is not in excluded_indices
+      if (std::find(excluded_indices.begin(), excluded_indices.end(), i) ==
+          excluded_indices.end()) {
+        current_users.push_back(_users[i]);
+      }
+    }
 
-  const CScript redeemScript() const {
+    auto N_USER = EncodeOP_N(current_users.size());
+
     CScript sc;
     sc << OP_IF;
     sc += _sgx.ScriptPubkey();
-    sc << OP_ELSE << EncodeOP_N(_users.size());
+    sc << OP_ELSE << N_USER;
 
-    for (const auto &u : _users) {
+    for (const auto &u : current_users) {
       sc << ToByteVector(u.GetPubKey());
     }
 
-    sc << EncodeOP_N(_users.size()) << OP_CHECKMULTISIG << OP_ENDIF;
+    sc << N_USER << OP_CHECKMULTISIG << OP_ENDIF;
 
     return sc;
+  }
+
+  const CScript
+  scriptPubkey(const vector<size_t> &excluded_indices = {}) const {
+    return GetScriptForDestination(CScriptID(redeemScript(excluded_indices)));
   }
 
   const CBitcoinAddress Address() const {
@@ -223,10 +234,6 @@ public:
   }
 
   string ToString() const { return "wallet address=" + Address().ToString(); }
-
-  void remove_user(size_t user_index) {
-    this->_users.erase(_users.begin() + user_index);
-  }
 
   CTransaction appeal(size_t user_index, const CKey &user_secret,
                       const OutPointWithTx &life_signal_op) {
@@ -262,20 +269,18 @@ public:
       throw std::invalid_argument("wallet uxto can't be spent");
     }
 
-    remove_user(user_index);
-
     CMutableTransaction unsigned_tx;
     unsigned_tx.nVersion = CTransaction::CURRENT_VERSION;
 
     // populate the life signal transaction and wallet outpoint
     unsigned_tx.vin.emplace_back(ls_tx.GetHash(),
-                                 LifeSignal::nOutForLifeSignalOutput,
+                                 LifeSignal::nOutForLifeSignalOutput, CScript(),
                                  ls.GetRelativeTimeout());
     unsigned_tx.vin.emplace_back(wallet_op.GetOutPoint());
 
     // populate the output
     unsigned_tx.vout.emplace_back(wallet_op.GetPrevOut().nValue,
-                                  this->scriptPubkey());
+                                  this->scriptPubkey({user_index}));
 
     // sign
     auto lifesignal_sigScript = ls.scriptSigByKey2(unsigned_tx, 0);
