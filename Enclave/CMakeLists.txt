@@ -11,11 +11,9 @@ set(secp256k1_INCLUDE ${secp256k1_PREFIX}/include)
 # for secp256k1
 include(ExternalProject)
 ExternalProject_Add(secp256k1-enclave
-        GIT_REPOSITORY https://github.com/bitcoin-core/secp256k1
-        GIT_TAG e34ceb333b1c0e6f4115ecbb80c632ac1042fa49
+        GIT_REPOSITORY https://github.com/bl4ck5un/secp256k1-sgx
         UPDATE_COMMAND ""
-        PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/patches/secp256k1.patch
-        CONFIGURE_COMMAND ./autogen.sh COMMAND env CPPFLAGS=-fPIC ./configure
+        CONFIGURE_COMMAND cd sgx/ && ./autogen.sh && env CPPFLAGS=-fPIC ./configure
         --enable-shared
         --enable-endomorphism
         --enable-module-recovery
@@ -28,9 +26,9 @@ ExternalProject_Add(secp256k1-enclave
         --enable-exhaustive-tests=no
         --with-bignum=no
         --prefix ${secp256k1_PREFIX}
-        BUILD_COMMAND make -j
+        BUILD_COMMAND cd sgx/ && make -j
         BUILD_IN_SOURCE true
-        INSTALL_COMMAND make install
+        INSTALL_COMMAND cd sgx/ && make install
         )
 
 add_custom_command(
@@ -62,13 +60,13 @@ set(BITCOIN_SRC_FILES
 
 set(ENCLAVE_SOURCE_FILES
         Enclave_t.c
+        ../common/message.c
         log.cpp
         pprint.cpp
         utils.cpp
         paralysis.cpp
         bitcoin_helpers.cpp
-        enclave_test.cpp
-        deposit.cpp
+        ecalls.cpp
         ${BITCOIN_SRC_FILES})
 
 add_library(enclave SHARED ${ENCLAVE_SOURCE_FILES})

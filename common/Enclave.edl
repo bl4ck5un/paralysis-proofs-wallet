@@ -2,13 +2,14 @@ enclave {
   from "sgx_tstdc.edl" import *;
   from "sgx_tae_service.edl" import *;
 
-  include "sgx_tseal.h"
   include "sgx_trts.h"
   include "sgx_tae_service.h"
+  include "../common/message.h"
 
-      trusted {
-  public
-    int enclaveTest();
+  trusted {
+    public int enclaveTest();
+    public int parse_wallet_info([in, string] const char* _redeemScript, [in, string] const char* _walletUtxoTx);
+    public int accuse([in, string] const char *_feePaymentTx, [in, string] const char *_walletUtxoTx, size_t who_to_accuse, [user_check] AccusationResult* result);
   };
 
   untrusted {

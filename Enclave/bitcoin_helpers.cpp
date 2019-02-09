@@ -3,7 +3,6 @@
 #include "bitcoin/utilstrencodings.h"
 #include "log.h"
 
-#include "lest/lest.hpp"
 #include <algorithm>
 
 using std::vector;

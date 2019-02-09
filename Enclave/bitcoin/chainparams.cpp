@@ -69,6 +69,7 @@ CChainParams& Params(const std::string& chain)
 
 void SelectParams(const std::string& network)
 {
+  LL_NOTICE("selecting network: %s", network.c_str());
     SelectBaseParams(network);
     pCurrentParams = &Params(network);
 }

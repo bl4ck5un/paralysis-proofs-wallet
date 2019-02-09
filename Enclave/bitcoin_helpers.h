@@ -9,6 +9,7 @@
 #include <bitcoin/primitives/transaction.h>
 #include <stdio.h>
 #include <vector>
+#include <tlibc/mbusafecrt.h>
 
 #define MUST_TRUE(c)                                                           \
   do {                                                                         \
@@ -47,6 +48,8 @@ public:
   OutPointWithTx(const CTransaction &tx, const CScript &targetScriptPubkey)
       : tx(MakeTransactionRef(tx)) {
 
+    LL_DEBUG("tx decoded: %s", tx.ToString().c_str());
+
     nOut = 66;
     for (uint32_t i = 0; i < tx.vout.size(); i++) {
       if (tx.vout[i].scriptPubKey == targetScriptPubkey) {
@@ -74,6 +77,17 @@ inline std::string tx2hex(const CTransaction &t) {
   ss << t;
 
   return HexStr(ss);
+}
+
+#include "message.h"
+
+inline size_t tx2arbuf(uint8_t *dst, const CTransaction &t) {
+  CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+  ss << t;
+
+  memcpy_s(dst, AR_BUF_SIZE, ss.data(), ss.size());
+
+  return ss.size();
 }
 
 #endif // PARALYSIS_PROOF_BITCOIN_HELPERS_H

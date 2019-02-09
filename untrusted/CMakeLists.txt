@@ -13,13 +13,24 @@ add_custom_command(
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+set(CMAKE_PREFIX_PATH /home/fanz/bin/Qt/5.12.1/gcc_64)
+
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+# Create code from a list of Qt designer ui files
+set(CMAKE_AUTOUIC ON)
+
 add_executable(pp
-        main.cpp
+        ../common/message.c
+        pp.cpp
         bitcoind-rpc.cpp
         Utils.cpp
         interrupt.cpp
         Enclave_u.c
+        ui.cpp
         ${BRIDGE_SRC})
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 find_package(Jsoncpp REQUIRED)
 find_package(JsonCppRpc REQUIRED)
@@ -28,7 +39,10 @@ find_package(Boost REQUIRED COMPONENTS program_options filesystem thread)
 find_package(OpenSSL REQUIRED)
 find_package(Log4CXX REQUIRED)
 
+#find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
+
 include_directories(
+        Qt5::Widgets
         ${CURL_INCLUDE_DIRS}
         ${JSONCPP_INCLUDE_DIRS}/${JSONCPP_INCLUDE_PREFIX}
         ${JSONRPCCPP_INCLUDE_DIRS}
@@ -36,6 +50,7 @@ include_directories(
         ${Boost_INCLUDE_DIRS}
         ${OPENSSL_INCLUDE_DIR}
         ${LOG4CXX_INCLUDE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -50,6 +65,7 @@ set(COMMON_LIBS
         )
 
 target_link_libraries(pp
+        Qt5::Widgets
         ${RPC_LIB_BUNDLE}
         ${COMMON_LIBS}
         ${Boost_LIBRARIES}

@@ -57,23 +57,16 @@ const sgx_errlist_t sgx_errlist[] = {
     {SGX_ERROR_ENCLAVE_FILE_ACCESS, "Can't open enclave file.", NULL},
 };
 
-#include <climits>
+#include <sstream>
+#include <iomanip>
 
-inline void parse_addr(const std::string &addr, std::string *hostname,
-                       uint16_t *port) {
-  auto delim = addr.find(':');
-  if (delim == addr.npos) {
-    throw std::invalid_argument("no : find in addr " + addr);
-  }
-  if (hostname) {
-    *hostname = addr.substr(0, delim);
-  }
-  *port = (uint16_t)strtol(addr.substr(delim + 1).c_str(), nullptr, 10);
-
-  if ((*port == 0 || *port == LONG_MAX || *port == LONG_MIN) &&
-      errno == ERANGE) {
-    throw std::invalid_argument("malformed address");
-  }
+inline std::string hexStr(unsigned char* data, size_t len)
+{
+  std::stringstream ss;
+  ss << std::hex;
+  for(size_t i=0;i<len;++i)
+    ss << std::setw(2) << std::setfill('0') << (int)data[i];
+  return ss.str();
 }
 
 #endif
