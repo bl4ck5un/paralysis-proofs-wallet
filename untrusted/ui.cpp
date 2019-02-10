@@ -5,8 +5,8 @@
 #include <sgx_eid.h>
 #include <sgx_error.h>
 
-#include "default-values.h"
 #include "../common/message.h"
+#include "default-values.h"
 
 extern sgx_enclave_id_t eid;
 
@@ -72,11 +72,19 @@ void WalletForm::on_accuseButton_clicked(bool) {
   auto stupid_mid_val_feeTx = ui.feeTx->toPlainText().toStdString();
   auto stupid_mid_val_walletTx = ui.utxo->toPlainText().toStdString();
   st = accuse(eid, &ret, stupid_mid_val_feeTx.c_str(),
-                         stupid_mid_val_walletTx.c_str(),
-                         accused_index,
-                         &result);
+              stupid_mid_val_walletTx.c_str(), accused_index, &result);
 
-
-  ui.Tx1->setPlainText(QString::fromStdString(hexStr(result.tx1, result.tx1_len)));
-  ui.Tx2->setPlainText(QString::fromStdString(hexStr(result.tx2, result.tx2_len)));
+  if (SGX_SUCCESS != st || ret != 0) {
+    if (SGX_SUCCESS != st) {
+      print_error_message(st);
+    }
+    LOG4CXX_ERROR(logger, "error return code " << ret);
+  } else {
+    ui.Tx1->setPlainText(
+        QString::fromStdString(hexStr(result.tx1, result.tx1_len)));
+    ui.Tx2->setPlainText(
+        QString::fromStdString(hexStr(result.tx2, result.tx2_len)));
+    ui.TxAppeal->setPlainText(
+        QString::fromStdString(hexStr(result.tx_appeal, result.tx_appeal_len)));
+  }
 }

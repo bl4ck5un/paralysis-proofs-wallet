@@ -57,14 +57,13 @@ const sgx_errlist_t sgx_errlist[] = {
     {SGX_ERROR_ENCLAVE_FILE_ACCESS, "Can't open enclave file.", NULL},
 };
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
-inline std::string hexStr(unsigned char* data, size_t len)
-{
+inline std::string hexStr(unsigned char *data, size_t len) {
   std::stringstream ss;
   ss << std::hex;
-  for(size_t i=0;i<len;++i)
+  for (size_t i = 0; i < len; ++i)
     ss << std::setw(2) << std::setfill('0') << (int)data[i];
   return ss.str();
 }

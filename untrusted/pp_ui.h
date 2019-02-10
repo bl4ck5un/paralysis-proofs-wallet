@@ -55,11 +55,11 @@ public:
     QPushButton *accuseButton;
     QTextBrowser *Tx1;
     QTextBrowser *Tx2;
-    QTextBrowser *textBrowser;
+    QTextBrowser *TxAppeal;
     QSplitter *splitter;
-    QPushButton *pushButton_2;
-    QPushButton *pushButton;
-    QPushButton *pushButton_3;
+    QPushButton *copyTx1Button;
+    QPushButton *copyTx2Button;
+    QPushButton *copyTxAppealButton;
     QHBoxLayout *lower;
     QPushButton *loadExampleButton;
     QPushButton *exitButton;
@@ -100,7 +100,7 @@ public:
 
         redeemScript = new QPlainTextEdit(left);
         redeemScript->setObjectName(QString::fromUtf8("redeemScript"));
-        redeemScript->setMinimumSize(QSize(600, 0));
+        redeemScript->setMinimumSize(QSize(600, 300));
 
         formLayout->setWidget(0, QFormLayout::FieldRole, redeemScript);
 
@@ -111,12 +111,12 @@ public:
 
         utxo = new QPlainTextEdit(left);
         utxo->setObjectName(QString::fromUtf8("utxo"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(utxo->sizePolicy().hasHeightForWidth());
         utxo->setSizePolicy(sizePolicy);
-        utxo->setMinimumSize(QSize(600, 0));
+        utxo->setMinimumSize(QSize(600, 300));
 
         formLayout->setWidget(1, QFormLayout::FieldRole, utxo);
 
@@ -166,8 +166,11 @@ public:
 
         feeTx = new QPlainTextEdit(right);
         feeTx->setObjectName(QString::fromUtf8("feeTx"));
-        sizePolicy.setHeightForWidth(feeTx->sizePolicy().hasHeightForWidth());
-        feeTx->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(feeTx->sizePolicy().hasHeightForWidth());
+        feeTx->setSizePolicy(sizePolicy1);
         feeTx->setMinimumSize(QSize(600, 0));
 
         formLayout_2->setWidget(1, QFormLayout::FieldRole, feeTx);
@@ -199,24 +202,24 @@ public:
 
         verticalLayout_2->addWidget(Tx2);
 
-        textBrowser = new QTextBrowser(right);
-        textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setMinimumSize(QSize(0, 300));
+        TxAppeal = new QTextBrowser(right);
+        TxAppeal->setObjectName(QString::fromUtf8("TxAppeal"));
+        TxAppeal->setMinimumSize(QSize(0, 300));
 
-        verticalLayout_2->addWidget(textBrowser);
+        verticalLayout_2->addWidget(TxAppeal);
 
         splitter = new QSplitter(right);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
-        pushButton_2 = new QPushButton(splitter);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        splitter->addWidget(pushButton_2);
-        pushButton = new QPushButton(splitter);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        splitter->addWidget(pushButton);
-        pushButton_3 = new QPushButton(splitter);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-        splitter->addWidget(pushButton_3);
+        copyTx1Button = new QPushButton(splitter);
+        copyTx1Button->setObjectName(QString::fromUtf8("copyTx1Button"));
+        splitter->addWidget(copyTx1Button);
+        copyTx2Button = new QPushButton(splitter);
+        copyTx2Button->setObjectName(QString::fromUtf8("copyTx2Button"));
+        splitter->addWidget(copyTx2Button);
+        copyTxAppealButton = new QPushButton(splitter);
+        copyTxAppealButton->setObjectName(QString::fromUtf8("copyTxAppealButton"));
+        splitter->addWidget(copyTxAppealButton);
 
         verticalLayout_2->addWidget(splitter);
 
@@ -277,10 +280,10 @@ public:
         accuseButton->setText(QApplication::translate("Wallet", "Accues!", nullptr));
         Tx1->setPlaceholderText(QApplication::translate("Wallet", "TX1 will appear here...", nullptr));
         Tx2->setPlaceholderText(QApplication::translate("Wallet", "TX2 will appear here...", nullptr));
-        textBrowser->setPlaceholderText(QApplication::translate("Wallet", "TX_appeal will appear here", nullptr));
-        pushButton_2->setText(QApplication::translate("Wallet", "Copy Tx1", nullptr));
-        pushButton->setText(QApplication::translate("Wallet", "Copy Tx2", nullptr));
-        pushButton_3->setText(QApplication::translate("Wallet", "Copy Tx Appeal", nullptr));
+        TxAppeal->setPlaceholderText(QApplication::translate("Wallet", "TX_appeal will appear here", nullptr));
+        copyTx1Button->setText(QApplication::translate("Wallet", "Copy Tx1", nullptr));
+        copyTx2Button->setText(QApplication::translate("Wallet", "Copy Tx2", nullptr));
+        copyTxAppealButton->setText(QApplication::translate("Wallet", "Copy Tx Appeal", nullptr));
         loadExampleButton->setText(QApplication::translate("Wallet", "Load Example", nullptr));
         exitButton->setText(QApplication::translate("Wallet", "Quit", nullptr));
         label_7->setText(QApplication::translate("Wallet", "\302\251 bl4ck5unxx@gmail.com", nullptr));

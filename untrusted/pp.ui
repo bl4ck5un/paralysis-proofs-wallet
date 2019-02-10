@@ -56,7 +56,7 @@
             <property name="minimumSize">
              <size>
               <width>600</width>
-              <height>0</height>
+              <height>300</height>
              </size>
             </property>
             <property name="placeholderText">
@@ -74,7 +74,7 @@
           <item row="1" column="1">
            <widget class="QPlainTextEdit" name="utxo">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -82,7 +82,7 @@
             <property name="minimumSize">
              <size>
               <width>600</width>
-              <height>0</height>
+              <height>300</height>
              </size>
             </property>
             <property name="placeholderText">

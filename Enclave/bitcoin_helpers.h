@@ -8,8 +8,8 @@
 #include "bitcoin/utilstrencodings.h"
 #include <bitcoin/primitives/transaction.h>
 #include <stdio.h>
-#include <vector>
 #include <tlibc/mbusafecrt.h>
+#include <vector>
 
 #define MUST_TRUE(c)                                                           \
   do {                                                                         \
