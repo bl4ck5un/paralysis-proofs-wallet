@@ -10,14 +10,15 @@
 #define UI_PP_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
-#include <QtWidgets/QFrame>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
@@ -26,6 +27,8 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -33,327 +36,408 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_MainWindow
-{
+class Ui_MainWindow {
 public:
-    QAction *actionQuit;
-    QAction *actionLoadWallet;
-    QWidget *Wallet;
-    QVBoxLayout *verticalLayout_3;
-    QLabel *label_5;
-    QHBoxLayout *horizontalLayout_2;
-    QGroupBox *left;
-    QVBoxLayout *verticalLayout;
-    QFormLayout *formLayout;
-    QLabel *label;
-    QPlainTextEdit *redeemScript;
-    QLabel *label_2;
-    QPlainTextEdit *utxo;
-    QFrame *line;
-    QPushButton *loadButton;
-    QTextBrowser *walletinfo;
-    QGroupBox *right;
-    QVBoxLayout *verticalLayout_2;
-    QFormLayout *formLayout_2;
-    QLabel *label_3;
-    QLineEdit *accused;
-    QLabel *label_4;
-    QPlainTextEdit *feeTx;
-    QFrame *line_2;
-    QPushButton *accuseButton;
-    QTextBrowser *Tx1;
-    QTextBrowser *Tx2;
-    QTextBrowser *TxAppeal;
-    QSplitter *splitter;
-    QPushButton *copyTx1Button;
-    QPushButton *copyTx2Button;
-    QPushButton *copyTxAppealButton;
-    QHBoxLayout *lower;
-    QPushButton *loadExampleButton;
-    QPushButton *exitButton;
-    QSpacerItem *horizontalSpacer;
-    QLabel *label_7;
-    QMenuBar *menubar;
-    QMenu *menuFile;
-    QMenu *menuHelp;
-    QStatusBar *statusbar;
-    QToolBar *toolBar;
+  QAction *actionQuit;
+  QAction *actionLoadWallet;
+  QWidget *Wallet;
+  QVBoxLayout *verticalLayout;
+  QGroupBox *info;
+  QHBoxLayout *horizontalLayout;
+  QFormLayout *formLayout;
+  QLabel *versionLabel;
+  QLabel *walletVersion;
+  QLabel *label_13;
+  QLabel *walletPeriod;
+  QLabel *label_2;
+  QLabel *walletAddress;
+  QLabel *label_6;
+  QLabel *walletFeeAddress;
+  QLabel *label_5;
+  QTableView *userInfoView;
+  QTabWidget *tabWidget;
+  QWidget *Remove;
+  QVBoxLayout *verticalLayout_2;
+  QFormLayout *formLayout_2;
+  QLabel *label_3;
+  QLabel *label_4;
+  QLabel *label_8;
+  QComboBox *whoToRemove;
+  QPlainTextEdit *feeTx;
+  QPlainTextEdit *walletTx;
+  QSplitter *splitter;
+  QPushButton *removeActionButton;
+  QPushButton *loadRemovalExampleButton;
+  QWidget *tab_2;
+  QVBoxLayout *verticalLayout_3;
+  QFormLayout *formLayout_3;
+  QLabel *label;
+  QComboBox *whoToAppeal;
+  QLabel *label_9;
+  QPlainTextEdit *lifesignalTx;
+  QSplitter *splitter_2;
+  QPushButton *appealActionButton;
+  QPushButton *loadAppealExampleButton;
+  QTextBrowser *output;
+  QHBoxLayout *horizontalLayout_2;
+  QHBoxLayout *lower;
+  QSpacerItem *horizontalSpacer;
+  QLabel *label_7;
+  QMenuBar *menubar;
+  QMenu *menuFile;
+  QMenu *menuHelp;
+  QStatusBar *statusbar;
+  QToolBar *toolBar;
 
-    void setupUi(QMainWindow *MainWindow)
-    {
-        if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1742, 1703);
-        MainWindow->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-        actionQuit = new QAction(MainWindow);
-        actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
-        QIcon icon;
-        QString iconThemeName = QString::fromUtf8("application-exit");
-        if (QIcon::hasThemeIcon(iconThemeName)) {
-            icon = QIcon::fromTheme(iconThemeName);
-        } else {
-            icon.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
-        }
-        actionQuit->setIcon(icon);
-        actionLoadWallet = new QAction(MainWindow);
-        actionLoadWallet->setObjectName(QString::fromUtf8("actionLoadWallet"));
-        QIcon icon1;
-        iconThemeName = QString::fromUtf8("document-open");
-        if (QIcon::hasThemeIcon(iconThemeName)) {
-            icon1 = QIcon::fromTheme(iconThemeName);
-        } else {
-            icon1.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
-        }
-        actionLoadWallet->setIcon(icon1);
-        Wallet = new QWidget(MainWindow);
-        Wallet->setObjectName(QString::fromUtf8("Wallet"));
-        verticalLayout_3 = new QVBoxLayout(Wallet);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        label_5 = new QLabel(Wallet);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setAlignment(Qt::AlignCenter);
+  void setupUi(QMainWindow *MainWindow) {
+    if (MainWindow->objectName().isEmpty())
+      MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
+    MainWindow->resize(1000, 1616);
+    MainWindow->setMinimumSize(QSize(1000, 0));
+    MainWindow->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    actionQuit = new QAction(MainWindow);
+    actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
+    QIcon icon;
+    QString iconThemeName = QString::fromUtf8("application-exit");
+    if (QIcon::hasThemeIcon(iconThemeName)) {
+      icon = QIcon::fromTheme(iconThemeName);
+    } else {
+      icon.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
+    }
+    actionQuit->setIcon(icon);
+    actionLoadWallet = new QAction(MainWindow);
+    actionLoadWallet->setObjectName(QString::fromUtf8("actionLoadWallet"));
+    QIcon icon1;
+    iconThemeName = QString::fromUtf8("document-open");
+    if (QIcon::hasThemeIcon(iconThemeName)) {
+      icon1 = QIcon::fromTheme(iconThemeName);
+    } else {
+      icon1.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
+    }
+    actionLoadWallet->setIcon(icon1);
+    Wallet = new QWidget(MainWindow);
+    Wallet->setObjectName(QString::fromUtf8("Wallet"));
+    verticalLayout = new QVBoxLayout(Wallet);
+    verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+    info = new QGroupBox(Wallet);
+    info->setObjectName(QString::fromUtf8("info"));
+    horizontalLayout = new QHBoxLayout(info);
+    horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+    formLayout = new QFormLayout();
+    formLayout->setObjectName(QString::fromUtf8("formLayout"));
+    versionLabel = new QLabel(info);
+    versionLabel->setObjectName(QString::fromUtf8("versionLabel"));
 
-        verticalLayout_3->addWidget(label_5);
+    formLayout->setWidget(0, QFormLayout::LabelRole, versionLabel);
 
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        left = new QGroupBox(Wallet);
-        left->setObjectName(QString::fromUtf8("left"));
-        verticalLayout = new QVBoxLayout(left);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        formLayout = new QFormLayout();
-        formLayout->setObjectName(QString::fromUtf8("formLayout"));
-        label = new QLabel(left);
-        label->setObjectName(QString::fromUtf8("label"));
+    walletVersion = new QLabel(info);
+    walletVersion->setObjectName(QString::fromUtf8("walletVersion"));
+    QFont font;
+    font.setFamily(QString::fromUtf8("Monospace"));
+    walletVersion->setFont(font);
 
-        formLayout->setWidget(0, QFormLayout::LabelRole, label);
+    formLayout->setWidget(0, QFormLayout::FieldRole, walletVersion);
 
-        redeemScript = new QPlainTextEdit(left);
-        redeemScript->setObjectName(QString::fromUtf8("redeemScript"));
-        redeemScript->setMinimumSize(QSize(600, 300));
+    label_13 = new QLabel(info);
+    label_13->setObjectName(QString::fromUtf8("label_13"));
 
-        formLayout->setWidget(0, QFormLayout::FieldRole, redeemScript);
+    formLayout->setWidget(1, QFormLayout::LabelRole, label_13);
 
-        label_2 = new QLabel(left);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+    walletPeriod = new QLabel(info);
+    walletPeriod->setObjectName(QString::fromUtf8("walletPeriod"));
+    walletPeriod->setFont(font);
 
-        formLayout->setWidget(1, QFormLayout::LabelRole, label_2);
+    formLayout->setWidget(1, QFormLayout::FieldRole, walletPeriod);
 
-        utxo = new QPlainTextEdit(left);
-        utxo->setObjectName(QString::fromUtf8("utxo"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(utxo->sizePolicy().hasHeightForWidth());
-        utxo->setSizePolicy(sizePolicy);
-        utxo->setMinimumSize(QSize(600, 300));
+    label_2 = new QLabel(info);
+    label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        formLayout->setWidget(1, QFormLayout::FieldRole, utxo);
+    formLayout->setWidget(2, QFormLayout::LabelRole, label_2);
 
+    walletAddress = new QLabel(info);
+    walletAddress->setObjectName(QString::fromUtf8("walletAddress"));
+    walletAddress->setFont(font);
 
-        verticalLayout->addLayout(formLayout);
+    formLayout->setWidget(2, QFormLayout::FieldRole, walletAddress);
 
-        line = new QFrame(left);
-        line->setObjectName(QString::fromUtf8("line"));
-        line->setFrameShape(QFrame::HLine);
-        line->setFrameShadow(QFrame::Sunken);
+    label_6 = new QLabel(info);
+    label_6->setObjectName(QString::fromUtf8("label_6"));
 
-        verticalLayout->addWidget(line);
+    formLayout->setWidget(3, QFormLayout::LabelRole, label_6);
 
-        loadButton = new QPushButton(left);
-        loadButton->setObjectName(QString::fromUtf8("loadButton"));
+    walletFeeAddress = new QLabel(info);
+    walletFeeAddress->setObjectName(QString::fromUtf8("walletFeeAddress"));
+    walletFeeAddress->setFont(font);
 
-        verticalLayout->addWidget(loadButton);
+    formLayout->setWidget(3, QFormLayout::FieldRole, walletFeeAddress);
 
-        walletinfo = new QTextBrowser(left);
-        walletinfo->setObjectName(QString::fromUtf8("walletinfo"));
+    label_5 = new QLabel(info);
+    label_5->setObjectName(QString::fromUtf8("label_5"));
 
-        verticalLayout->addWidget(walletinfo);
+    formLayout->setWidget(4, QFormLayout::LabelRole, label_5);
 
+    userInfoView = new QTableView(info);
+    userInfoView->setObjectName(QString::fromUtf8("userInfoView"));
+    userInfoView->setFont(font);
+    userInfoView->setSortingEnabled(true);
 
-        horizontalLayout_2->addWidget(left);
+    formLayout->setWidget(4, QFormLayout::FieldRole, userInfoView);
 
-        right = new QGroupBox(Wallet);
-        right->setObjectName(QString::fromUtf8("right"));
-        verticalLayout_2 = new QVBoxLayout(right);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        formLayout_2 = new QFormLayout();
-        formLayout_2->setObjectName(QString::fromUtf8("formLayout_2"));
-        label_3 = new QLabel(right);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
+    horizontalLayout->addLayout(formLayout);
 
-        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_3);
+    verticalLayout->addWidget(info);
 
-        accused = new QLineEdit(right);
-        accused->setObjectName(QString::fromUtf8("accused"));
+    tabWidget = new QTabWidget(Wallet);
+    tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+    tabWidget->setElideMode(Qt::ElideNone);
+    tabWidget->setTabBarAutoHide(false);
+    Remove = new QWidget();
+    Remove->setObjectName(QString::fromUtf8("Remove"));
+    verticalLayout_2 = new QVBoxLayout(Remove);
+    verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+    formLayout_2 = new QFormLayout();
+    formLayout_2->setObjectName(QString::fromUtf8("formLayout_2"));
+    label_3 = new QLabel(Remove);
+    label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, accused);
+    formLayout_2->setWidget(0, QFormLayout::LabelRole, label_3);
 
-        label_4 = new QLabel(right);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
+    label_4 = new QLabel(Remove);
+    label_4->setObjectName(QString::fromUtf8("label_4"));
 
-        formLayout_2->setWidget(1, QFormLayout::LabelRole, label_4);
+    formLayout_2->setWidget(2, QFormLayout::LabelRole, label_4);
 
-        feeTx = new QPlainTextEdit(right);
-        feeTx->setObjectName(QString::fromUtf8("feeTx"));
-        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(feeTx->sizePolicy().hasHeightForWidth());
-        feeTx->setSizePolicy(sizePolicy1);
-        feeTx->setMinimumSize(QSize(600, 0));
+    label_8 = new QLabel(Remove);
+    label_8->setObjectName(QString::fromUtf8("label_8"));
 
-        formLayout_2->setWidget(1, QFormLayout::FieldRole, feeTx);
+    formLayout_2->setWidget(4, QFormLayout::LabelRole, label_8);
 
+    whoToRemove = new QComboBox(Remove);
+    whoToRemove->setObjectName(QString::fromUtf8("whoToRemove"));
 
-        verticalLayout_2->addLayout(formLayout_2);
+    formLayout_2->setWidget(0, QFormLayout::FieldRole, whoToRemove);
 
-        line_2 = new QFrame(right);
-        line_2->setObjectName(QString::fromUtf8("line_2"));
-        line_2->setFrameShape(QFrame::HLine);
-        line_2->setFrameShadow(QFrame::Sunken);
+    feeTx = new QPlainTextEdit(Remove);
+    feeTx->setObjectName(QString::fromUtf8("feeTx"));
+    feeTx->setFont(font);
 
-        verticalLayout_2->addWidget(line_2);
+    formLayout_2->setWidget(2, QFormLayout::FieldRole, feeTx);
 
-        accuseButton = new QPushButton(right);
-        accuseButton->setObjectName(QString::fromUtf8("accuseButton"));
+    walletTx = new QPlainTextEdit(Remove);
+    walletTx->setObjectName(QString::fromUtf8("walletTx"));
+    walletTx->setFont(font);
 
-        verticalLayout_2->addWidget(accuseButton);
+    formLayout_2->setWidget(4, QFormLayout::FieldRole, walletTx);
 
-        Tx1 = new QTextBrowser(right);
-        Tx1->setObjectName(QString::fromUtf8("Tx1"));
-        Tx1->setMinimumSize(QSize(0, 300));
+    verticalLayout_2->addLayout(formLayout_2);
 
-        verticalLayout_2->addWidget(Tx1);
+    splitter = new QSplitter(Remove);
+    splitter->setObjectName(QString::fromUtf8("splitter"));
+    splitter->setOrientation(Qt::Horizontal);
+    removeActionButton = new QPushButton(splitter);
+    removeActionButton->setObjectName(QString::fromUtf8("removeActionButton"));
+    QIcon icon2;
+    iconThemeName = QString::fromUtf8("system-run");
+    if (QIcon::hasThemeIcon(iconThemeName)) {
+      icon2 = QIcon::fromTheme(iconThemeName);
+    } else {
+      icon2.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
+    }
+    removeActionButton->setIcon(icon2);
+    splitter->addWidget(removeActionButton);
+    loadRemovalExampleButton = new QPushButton(splitter);
+    loadRemovalExampleButton->setObjectName(
+        QString::fromUtf8("loadRemovalExampleButton"));
+    splitter->addWidget(loadRemovalExampleButton);
 
-        Tx2 = new QTextBrowser(right);
-        Tx2->setObjectName(QString::fromUtf8("Tx2"));
-        Tx2->setMinimumSize(QSize(0, 300));
+    verticalLayout_2->addWidget(splitter);
 
-        verticalLayout_2->addWidget(Tx2);
+    tabWidget->addTab(Remove, QString());
+    tab_2 = new QWidget();
+    tab_2->setObjectName(QString::fromUtf8("tab_2"));
+    verticalLayout_3 = new QVBoxLayout(tab_2);
+    verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+    formLayout_3 = new QFormLayout();
+    formLayout_3->setObjectName(QString::fromUtf8("formLayout_3"));
+    label = new QLabel(tab_2);
+    label->setObjectName(QString::fromUtf8("label"));
 
-        TxAppeal = new QTextBrowser(right);
-        TxAppeal->setObjectName(QString::fromUtf8("TxAppeal"));
-        TxAppeal->setMinimumSize(QSize(0, 300));
+    formLayout_3->setWidget(0, QFormLayout::LabelRole, label);
 
-        verticalLayout_2->addWidget(TxAppeal);
+    whoToAppeal = new QComboBox(tab_2);
+    whoToAppeal->setObjectName(QString::fromUtf8("whoToAppeal"));
 
-        splitter = new QSplitter(right);
-        splitter->setObjectName(QString::fromUtf8("splitter"));
-        splitter->setOrientation(Qt::Horizontal);
-        copyTx1Button = new QPushButton(splitter);
-        copyTx1Button->setObjectName(QString::fromUtf8("copyTx1Button"));
-        splitter->addWidget(copyTx1Button);
-        copyTx2Button = new QPushButton(splitter);
-        copyTx2Button->setObjectName(QString::fromUtf8("copyTx2Button"));
-        splitter->addWidget(copyTx2Button);
-        copyTxAppealButton = new QPushButton(splitter);
-        copyTxAppealButton->setObjectName(QString::fromUtf8("copyTxAppealButton"));
-        splitter->addWidget(copyTxAppealButton);
+    formLayout_3->setWidget(0, QFormLayout::FieldRole, whoToAppeal);
 
-        verticalLayout_2->addWidget(splitter);
+    label_9 = new QLabel(tab_2);
+    label_9->setObjectName(QString::fromUtf8("label_9"));
 
+    formLayout_3->setWidget(1, QFormLayout::LabelRole, label_9);
 
-        horizontalLayout_2->addWidget(right);
+    lifesignalTx = new QPlainTextEdit(tab_2);
+    lifesignalTx->setObjectName(QString::fromUtf8("lifesignalTx"));
+    lifesignalTx->setFont(font);
 
+    formLayout_3->setWidget(1, QFormLayout::FieldRole, lifesignalTx);
 
-        verticalLayout_3->addLayout(horizontalLayout_2);
+    verticalLayout_3->addLayout(formLayout_3);
 
-        lower = new QHBoxLayout();
-        lower->setObjectName(QString::fromUtf8("lower"));
-        loadExampleButton = new QPushButton(Wallet);
-        loadExampleButton->setObjectName(QString::fromUtf8("loadExampleButton"));
+    splitter_2 = new QSplitter(tab_2);
+    splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+    splitter_2->setOrientation(Qt::Horizontal);
+    appealActionButton = new QPushButton(splitter_2);
+    appealActionButton->setObjectName(QString::fromUtf8("appealActionButton"));
+    appealActionButton->setIcon(icon2);
+    splitter_2->addWidget(appealActionButton);
+    loadAppealExampleButton = new QPushButton(splitter_2);
+    loadAppealExampleButton->setObjectName(
+        QString::fromUtf8("loadAppealExampleButton"));
+    splitter_2->addWidget(loadAppealExampleButton);
 
-        lower->addWidget(loadExampleButton);
+    verticalLayout_3->addWidget(splitter_2);
 
-        exitButton = new QPushButton(Wallet);
-        exitButton->setObjectName(QString::fromUtf8("exitButton"));
+    tabWidget->addTab(tab_2, QString());
 
-        lower->addWidget(exitButton);
+    verticalLayout->addWidget(tabWidget);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    output = new QTextBrowser(Wallet);
+    output->setObjectName(QString::fromUtf8("output"));
+    output->setFont(font);
 
-        lower->addItem(horizontalSpacer);
+    verticalLayout->addWidget(output);
 
-        label_7 = new QLabel(Wallet);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
-        label_7->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    horizontalLayout_2 = new QHBoxLayout();
+    horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
 
-        lower->addWidget(label_7);
+    verticalLayout->addLayout(horizontalLayout_2);
 
+    lower = new QHBoxLayout();
+    lower->setObjectName(QString::fromUtf8("lower"));
+    horizontalSpacer =
+        new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        verticalLayout_3->addLayout(lower);
+    lower->addItem(horizontalSpacer);
 
-        MainWindow->setCentralWidget(Wallet);
-        menubar = new QMenuBar(MainWindow);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1742, 41));
-        menuFile = new QMenu(menubar);
-        menuFile->setObjectName(QString::fromUtf8("menuFile"));
-        menuHelp = new QMenu(menubar);
-        menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
-        MainWindow->setMenuBar(menubar);
-        statusbar = new QStatusBar(MainWindow);
-        statusbar->setObjectName(QString::fromUtf8("statusbar"));
-        MainWindow->setStatusBar(statusbar);
-        toolBar = new QToolBar(MainWindow);
-        toolBar->setObjectName(QString::fromUtf8("toolBar"));
-        MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
+    label_7 = new QLabel(Wallet);
+    label_7->setObjectName(QString::fromUtf8("label_7"));
+    label_7->setAlignment(Qt::AlignRight | Qt::AlignTrailing |
+                          Qt::AlignVCenter);
 
-        menubar->addAction(menuFile->menuAction());
-        menubar->addAction(menuHelp->menuAction());
-        menuFile->addAction(actionLoadWallet);
-        menuFile->addAction(actionQuit);
-        menuHelp->addAction(actionQuit);
-        toolBar->addAction(actionLoadWallet);
-        toolBar->addAction(actionQuit);
+    lower->addWidget(label_7);
 
-        retranslateUi(MainWindow);
+    verticalLayout->addLayout(lower);
 
-        QMetaObject::connectSlotsByName(MainWindow);
-    } // setupUi
+    MainWindow->setCentralWidget(Wallet);
+    menubar = new QMenuBar(MainWindow);
+    menubar->setObjectName(QString::fromUtf8("menubar"));
+    menubar->setGeometry(QRect(0, 0, 1000, 41));
+    menuFile = new QMenu(menubar);
+    menuFile->setObjectName(QString::fromUtf8("menuFile"));
+    menuHelp = new QMenu(menubar);
+    menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
+    MainWindow->setMenuBar(menubar);
+    statusbar = new QStatusBar(MainWindow);
+    statusbar->setObjectName(QString::fromUtf8("statusbar"));
+    MainWindow->setStatusBar(statusbar);
+    toolBar = new QToolBar(MainWindow);
+    toolBar->setObjectName(QString::fromUtf8("toolBar"));
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
-    void retranslateUi(QMainWindow *MainWindow)
-    {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
-        actionQuit->setText(QApplication::translate("MainWindow", "Quit", nullptr));
-        actionLoadWallet->setText(QApplication::translate("MainWindow", "Load", nullptr));
+    menubar->addAction(menuFile->menuAction());
+    menubar->addAction(menuHelp->menuAction());
+    menuFile->addAction(actionLoadWallet);
+    menuHelp->addAction(actionQuit);
+    toolBar->addAction(actionLoadWallet);
+    toolBar->addAction(actionQuit);
+
+    retranslateUi(MainWindow);
+
+    tabWidget->setCurrentIndex(0);
+
+    QMetaObject::connectSlotsByName(MainWindow);
+  } // setupUi
+
+  void retranslateUi(QMainWindow *MainWindow) {
+    MainWindow->setWindowTitle(
+        QApplication::translate("MainWindow", "MainWindow", nullptr));
+    actionQuit->setText(QApplication::translate("MainWindow", "Quit", nullptr));
+    actionLoadWallet->setText(
+        QApplication::translate("MainWindow", "Load", nullptr));
 #ifndef QT_NO_TOOLTIP
-        actionLoadWallet->setToolTip(QApplication::translate("MainWindow", "Load Wallet", nullptr));
+    actionLoadWallet->setToolTip(
+        QApplication::translate("MainWindow", "Load Wallet", nullptr));
 #endif // QT_NO_TOOLTIP
-        Wallet->setWindowTitle(QApplication::translate("MainWindow", "Form", nullptr));
-        label_5->setText(QApplication::translate("MainWindow", "(This is a demo. Don't use it with real coins!!)", nullptr));
-        left->setTitle(QApplication::translate("MainWindow", "Wallet Information", nullptr));
-        label->setText(QApplication::translate("MainWindow", "RedeemScript", nullptr));
-        redeemScript->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the wallet redeemScript", nullptr));
-        label_2->setText(QApplication::translate("MainWindow", "Wallet UTXO", nullptr));
-        utxo->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the wallet deposit TX", nullptr));
-        loadButton->setText(QApplication::translate("MainWindow", "Load Wallet Information", nullptr));
-        walletinfo->setPlaceholderText(QApplication::translate("MainWindow", "Wallet info will appear here...", nullptr));
-        right->setTitle(QApplication::translate("MainWindow", "Change Access Control", nullptr));
-        label_3->setText(QApplication::translate("MainWindow", "accuse who:", nullptr));
-        accused->setPlaceholderText(QApplication::translate("MainWindow", "e.g., 0, 1, 2, ...", nullptr));
-        label_4->setText(QApplication::translate("MainWindow", "Fee Payment Tx", nullptr));
-        feeTx->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the fee payment TX", nullptr));
-        accuseButton->setText(QApplication::translate("MainWindow", "Accues!", nullptr));
-        Tx1->setPlaceholderText(QApplication::translate("MainWindow", "TX1 will appear here...", nullptr));
-        Tx2->setPlaceholderText(QApplication::translate("MainWindow", "TX2 will appear here...", nullptr));
-        TxAppeal->setPlaceholderText(QApplication::translate("MainWindow", "TX_appeal will appear here", nullptr));
-        copyTx1Button->setText(QApplication::translate("MainWindow", "Copy Tx1", nullptr));
-        copyTx2Button->setText(QApplication::translate("MainWindow", "Copy Tx2", nullptr));
-        copyTxAppealButton->setText(QApplication::translate("MainWindow", "Copy Tx Appeal", nullptr));
-        loadExampleButton->setText(QApplication::translate("MainWindow", "Load Example", nullptr));
-        exitButton->setText(QApplication::translate("MainWindow", "Quit", nullptr));
-        label_7->setText(QApplication::translate("MainWindow", "\302\251 bl4ck5unxx@gmail.com", nullptr));
-        menuFile->setTitle(QApplication::translate("MainWindow", "&File", nullptr));
-        menuHelp->setTitle(QApplication::translate("MainWindow", "Help", nullptr));
-        toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", nullptr));
-    } // retranslateUi
-
+    Wallet->setWindowTitle(
+        QApplication::translate("MainWindow", "Form", nullptr));
+    info->setTitle(QApplication::translate("MainWindow",
+                                           "Load a wallet to start", nullptr));
+    versionLabel->setText(
+        QApplication::translate("MainWindow", "Version", nullptr));
+    walletVersion->setText(
+        QApplication::translate("MainWindow", "N/A", nullptr));
+    label_13->setText(
+        QApplication::translate("MainWindow", "Grace Period", nullptr));
+    walletPeriod->setText(
+        QApplication::translate("MainWindow", "N/A", nullptr));
+    label_2->setText(QApplication::translate("MainWindow", "Address", nullptr));
+    walletAddress->setText(
+        QApplication::translate("MainWindow", "N/A", nullptr));
+    label_6->setText(
+        QApplication::translate("MainWindow", "Fee Address", nullptr));
+    walletFeeAddress->setText(
+        QApplication::translate("MainWindow", "N/A", nullptr));
+    label_5->setText(
+        QApplication::translate("MainWindow", "Current Users", nullptr));
+    label_3->setText(
+        QApplication::translate("MainWindow", "Who to be removed:", nullptr));
+    label_4->setText(
+        QApplication::translate("MainWindow", "Fee payment proof:", nullptr));
+    label_8->setText(
+        QApplication::translate("MainWindow", "Wallet Tx:", nullptr));
+    removeActionButton->setText(
+        QApplication::translate("MainWindow", "Action!", nullptr));
+    loadRemovalExampleButton->setText(
+        QApplication::translate("MainWindow", "Load an example", nullptr));
+    tabWidget->setTabText(
+        tabWidget->indexOf(Remove),
+        QApplication::translate("MainWindow", "Remove a key holder", nullptr));
+    label->setText(
+        QApplication::translate("MainWindow", "Appeal on behalf of", nullptr));
+    label_9->setText(QApplication::translate(
+        "MainWindow", "Life signal to trigger", nullptr));
+    appealActionButton->setText(
+        QApplication::translate("MainWindow", "Action!", nullptr));
+    loadAppealExampleButton->setText(
+        QApplication::translate("MainWindow", "Load an example", nullptr));
+    tabWidget->setTabText(
+        tabWidget->indexOf(tab_2),
+        QApplication::translate("MainWindow", "Spend a life signal", nullptr));
+    output->setHtml(QApplication::translate(
+        "MainWindow",
+        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+        "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+        "type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:'Monospace'; "
+        "font-size:11pt; font-weight:400; font-style:normal;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; "
+        "margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span "
+        "style=\" font-family:'Lato';\">Output "
+        "panel...</span></p></body></html>",
+        nullptr));
+    label_7->setText(QApplication::translate(
+        "MainWindow", "\302\251 bl4ck5unxx@gmail.com", nullptr));
+    menuFile->setTitle(QApplication::translate("MainWindow", "&File", nullptr));
+    menuHelp->setTitle(QApplication::translate("MainWindow", "Help", nullptr));
+    toolBar->setWindowTitle(
+        QApplication::translate("MainWindow", "toolBar", nullptr));
+  } // retranslateUi
 };
 
 namespace Ui {
-    class MainWindow: public Ui_MainWindow {};
+class MainWindow : public Ui_MainWindow {};
 } // namespace Ui
 
 QT_END_NAMESPACE

@@ -1,17 +1,28 @@
 #include "message.h"
 
-AccusationResult ar_init() {
-  AccusationResult ar = {NULL, NULL, NULL, 0, 0, 0};
 
-  ar.tx1 = malloc(1024);
-  ar.tx2 = malloc(1024);
-  ar.tx_appeal = malloc(1024);
+
+AccusationResult accusation_result_init() {
+  AccusationResult ar = {NULL, NULL, 0, 0};
+
+  ar.tx1 = malloc(AR_BUF_SIZE);
+  ar.tx2 = malloc(AR_BUF_SIZE);
 
   return ar;
 }
 
-void ar_free(AccusationResult* ptr) {
+void accusation_result_free(AccusationResult *ptr) {
   free(ptr->tx1);
   free(ptr->tx2);
-  free(ptr->tx_appeal);
+}
+
+AppealResult appeal_result_init() {
+  AppealResult r = {NULL, 0};
+
+  r.tx = malloc(AR_BUF_SIZE);
+  return r;
+}
+
+void appeal_result_free(AppealResult* ptr) {
+  free(ptr->tx);
 }

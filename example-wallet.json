@@ -3,9 +3,26 @@
     "users": [
         {
             "name": "alice",
-            "pubkey": "xyz"
+            "pubkey": "02a81ef990e7db9689ea7ae26ac4fdffef5f32350f04179d5080e239934d1a056f"
+        },
+        {
+            "name": "bob",
+            "pubkey": "030c11f20c422d934cc279f932340474180cfd70fd1c2726e25da2e79e3d23a5b7"
+        },
+        {
+            "name": "char",
+            "pubkey": "02f3d2d13b5a273d21e582657c3ebdf015b4e4713cc913c10cbe29253d670839bf"
+        },
+        {
+            "name": "david",
+            "pubkey": "03dd91a2928c2e2322467b34da41f60acf617668a82c5665d31742029311a28dc0"
+        },
+        {
+            "name": "eve",
+            "pubkey": "03a387cb92f25b8d3f82f34b9bcfee4e1ff248f4572a5083a8bd3166797a19c86e"
         }
     ],
-    "manager_pubkey": "xyz",
+    "wallet_address": "2MsH4t9iKibhjuz4qnsNYKDuhqn6AgftuRY",
+    "fee_payment_address": "moQAM7ECkhHfcbgEhjw6eKNBtecS5XR4PG",
     "grace_period": 144
 }

@@ -10,6 +10,7 @@ enclave {
     public int enclaveTest();
     public int parse_wallet_info([in, string] const char* _redeemScript, [in, string] const char* _walletUtxoTx);
     public int accuse([in, string] const char *_feePaymentTx, [in, string] const char *_walletUtxoTx, size_t who_to_accuse, [user_check] AccusationResult* result);
+    public int appeal([in, string] const char *_lifeSignalTx, size_t who_to_accuse, [user_check] AppealResult* result);
   };
 
   untrusted {

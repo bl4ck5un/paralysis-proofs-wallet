@@ -48,8 +48,6 @@ public:
   OutPointWithTx(const CTransaction &tx, const CScript &targetScriptPubkey)
       : tx(MakeTransactionRef(tx)) {
 
-    LL_DEBUG("tx decoded: %s", tx.ToString().c_str());
-
     nOut = 66;
     for (uint32_t i = 0; i < tx.vout.size(); i++) {
       if (tx.vout[i].scriptPubKey == targetScriptPubkey) {

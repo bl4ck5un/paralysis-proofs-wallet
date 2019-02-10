@@ -11,8 +11,8 @@
 #include <log4cxx/logger.h>
 
 #include "Enclave_u.h"
-#include "enclave-utils.h"
 #include "config.h"
+#include "enclave-utils.h"
 #include "interrupt.h"
 
 #include "ui.h"
@@ -28,7 +28,7 @@ sgx_enclave_id_t eid;
 int main(int argc, char *argv[]) {
   log4cxx::PropertyConfigurator::configure(LOGGING_CONF);
 
-  Config config(argc, (const char**) argv);
+  Config config(argc, (const char **)argv);
 
   if (0 != initialize_enclave(&eid)) {
     cerr << "failed to init enclave" << endl;
@@ -44,16 +44,16 @@ int main(int argc, char *argv[]) {
   }
 
   if (config.isShowGui()) {
+    Wallet psw;
+
     QApplication app(argc, argv);
-    WalletForm wallet_ui;
+    WalletForm wallet_ui(&psw);
     wallet_ui.show();
     wallet_ui.setWindowTitle("Paralysis-Proofs Wallet");
     app.exec();
   } else {
     LOG4CXX_DEBUG(logger, "GUI disabled.");
   }
-
-
 
   LOG4CXX_INFO(logger, "exiting...");
 

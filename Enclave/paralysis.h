@@ -11,6 +11,8 @@
 #include "bitcoin/pubkey.h"
 #include "bitcoin/script/sign.h"
 
+#include <stdio.h>
+
 using std::move;
 using std::string;
 using std::vector;
@@ -47,7 +49,8 @@ public:
   const CKey &GetSecret() const { return secret; }
 
   string ToString() const {
-    return "name: " + _name + ", address=" + Address().ToString();
+    return "name: " + _name + ", address: " + Address().ToString() +
+           ", pubkey: " + HexStr(pubkey.begin(), pubkey.end());
   }
 };
 
@@ -118,9 +121,9 @@ public:
                      << ToByteVector(_redeemScript);
   }
 
-  CTransaction into_transaction(const CKey &dust_seckey,
-                                const OutPointWithTx &dust_op,
-                                const CFeeRate &fee_rate) const {
+  CTransaction IntoTransaction(const CKey &dust_seckey,
+                               const OutPointWithTx &dust_op,
+                               const CFeeRate &fee_rate) const {
     if (dust_op.GetPrevOut().scriptPubKey !=
         GetScriptForDestination(dust_seckey.GetPubKey().GetID())) {
       throw std::invalid_argument("dust outpoint has incorrect scriptPubkey");
@@ -170,7 +173,7 @@ class Wallet {
 private:
   vector<Party> _users;
   Party _sgx;
-  vector<LifeSignal> lift_signals;
+  vector<LifeSignal> life_signals;
 
   CScript sigScriptBySGX(const CKey &sgx_seckey,
                          const CMutableTransaction &unsigned_tx,
@@ -194,7 +197,7 @@ public:
       : _users(users), _sgx(sgx) {
     // use a relative_timeout of 10
     for (const auto &p : users) {
-      lift_signals.emplace_back(p.GetPubKey(), life_signal_span);
+      life_signals.emplace_back(p.GetPubKey(), life_signal_span);
     }
   }
   const CScript
@@ -229,11 +232,11 @@ public:
     return GetScriptForDestination(CScriptID(redeemScript(excluded_indices)));
   }
 
+  const vector<LifeSignal> &GetLifeSignals() { return life_signals; };
+
   const CBitcoinAddress Address() const {
     return CBitcoinAddress(CScriptID(redeemScript()));
   }
-
-#include <stdio.h>
 
   string ToString() const {
     string info;
@@ -249,7 +252,7 @@ public:
 
   CTransaction appeal(size_t user_index, const CKey &user_secret,
                       const OutPointWithTx &life_signal_op) {
-    auto ls = this->lift_signals[user_index];
+    auto ls = this->life_signals[user_index];
 
     if (life_signal_op.GetPrevOut().scriptPubKey != ls.GetScriptPubKey()) {
       throw std::invalid_argument("mismatch scriptPubkey");
@@ -268,12 +271,12 @@ public:
     return CTransaction(unsigned_tx);
   }
 
-  std::tuple<LifeSignal, CTransaction, CTransaction>
+  std::tuple<CTransaction, CTransaction>
   accuse(const OutPointWithTx &dust_op, const OutPointWithTx &wallet_op,
          size_t user_index, const CKey &sgx_seckey, const CFeeRate &fee_rate) {
-    auto ls_tx = this->lift_signals[user_index].into_transaction(
+    auto ls_tx = this->life_signals[user_index].IntoTransaction(
         sgx_seckey, dust_op, fee_rate);
-    auto ls = this->lift_signals[user_index];
+    auto ls = this->life_signals[user_index];
 
     if (wallet_op.GetPrevOut().scriptPubKey != this->scriptPubkey()) {
       LL_CRITICAL("wallet scriptPubkey: %s",
@@ -305,7 +308,7 @@ public:
 
     CTransaction tx2(unsigned_tx);
 
-    return std::make_tuple(ls, ls_tx, tx2);
+    return std::make_tuple(ls_tx, tx2);
   }
 };
 

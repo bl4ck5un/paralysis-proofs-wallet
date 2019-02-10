@@ -8,45 +8,26 @@
 #include "../common/message.h"
 #include "default-values.h"
 
+#include <QErrorMessage>
 #include <QFileDialog>
+#include <QtGlobal>
 
 extern sgx_enclave_id_t eid;
 
-WalletForm::WalletForm(QWidget *parent)
-    : QMainWindow(parent), logger(log4cxx::Logger::getLogger(__FILE__)) {
+WalletForm::WalletForm(Wallet *c, QWidget *parent)
+    : QMainWindow(parent), logger(log4cxx::Logger::getLogger(__FILE__)),
+      controller(c) {
   ui.setupUi(this);
+
+  error = QErrorMessage::qtHandler();
+  error->setWindowTitle("Oops");
+
+  ui.userInfoView->setModel(c->get_model());
+  ui.userInfoView->setVisible(false);
+  ui.userInfoView->resizeColumnsToContents();
 }
 
-void WalletForm::on_loadButton_clicked(bool) {
-  auto redeemScript = ui.redeemScript->toPlainText();
-  auto walletTx = ui.utxo->toPlainText();
-
-  ui.walletinfo->setPlainText("working on it");
-
-  int ret;
-  sgx_status_t st;
-
-  if (redeemScript.isEmpty() || walletTx.isEmpty()) {
-    ui.walletinfo->setPlainText("Empty!");
-    return;
-  }
-
-  auto stupid_mid_val_redeemScript = redeemScript.toStdString();
-  auto stupid_mid_val_walletTx = walletTx.toStdString();
-  st = parse_wallet_info(eid, &ret, stupid_mid_val_redeemScript.c_str(),
-                         stupid_mid_val_walletTx.c_str());
-  if (SGX_SUCCESS != st) {
-    print_error_message(st);
-  }
-  if (st != SGX_SUCCESS || ret != 0) {
-    ui.walletinfo->setPlainText("Error! Enclave returned " +
-                                QString::number(ret));
-  } else {
-    ui.walletinfo->setPlainText("Done.");
-  }
-}
-
-void WalletForm::on_exitButton_clicked(bool) { QApplication::quit(); }
+#include <iostream>
 
 void WalletForm::on_actionQuit_triggered(bool) { QApplication::quit(); }
 
@@ -62,34 +43,56 @@ void WalletForm::on_actionLoadWallet_triggered(bool) {
 
   Q_ASSERT(fileName.size() == 1);
 
-  ui.statusbar->showMessage(QString("%1 selected.").arg(fileName[0]));
+  try {
+    controller->loadJSON(fileName[0].toStdString());
+    ui.statusbar->showMessage(QString("%1 loaded.").arg(fileName[0]), 5000);
+
+    ui.info->setTitle(
+        QString("Wallet %1").arg(controller->get_wallet_address().c_str()));
+
+    ui.userInfoView->setVisible(true);
+    ui.userInfoView->resizeColumnsToContents();
+
+    ui.walletAddress->setText(
+        QString::fromStdString(controller->get_wallet_address()));
+    ui.walletVersion->setText(
+        QString::fromStdString(controller->get_version()));
+    ui.walletFeeAddress->setText(
+        QString::fromStdString(controller->get_fee_payment_address()));
+    ui.walletPeriod->setText(QString::number(controller->get_grace_period()));
+
+    ui.whoToRemove->addItems(controller->get_user_names());
+    ui.whoToAppeal->addItems(controller->get_user_names());
+  } catch (const std::exception &e) {
+    ui.statusbar->showMessage(e.what());
+    qCritical("Can't load JSON: %s", e.what());
+  }
 }
 
-void WalletForm::on_loadExampleButton_clicked(bool) {
-  ui.redeemScript->setPlainText(DEFAULT_REDEEMSCRIPT);
-  ui.utxo->setPlainText(DEFAULT_WALLET_UTXO);
+void WalletForm::on_loadRemovalExampleButton_clicked(bool) {
+  ui.walletTx->setPlainText(DEFAULT_WALLET_UTXO);
   ui.feeTx->setPlainText(DEFAULT_FEE_PAYMENT_TX);
-  ui.accused->setText(QString::number(DEFAULT_ACCUSATION_IDX));
+  ui.whoToRemove->setCurrentIndex(DEFAULT_ACCUSATION_IDX);
 }
 
-void WalletForm::on_accuseButton_clicked(bool) {
-  if (ui.accused->text().isEmpty() || ui.feeTx->toPlainText().isEmpty()) {
-    LOG4CXX_INFO(logger, "empty input");
+void WalletForm::on_loadAppealExampleButton_clicked(bool) {
+  ui.whoToAppeal->setCurrentIndex(DEFAULT_ACCUSATION_IDX);
+  ui.lifesignalTx->setPlainText(DEFAULT_LIFE_SIGNAL_TX);
+}
+
+void WalletForm::on_removeActionButton_clicked(bool) {
+  if (ui.feeTx->toPlainText().isEmpty() || 0 == ui.whoToRemove->count()) {
+    qCritical("Empty input");
+    return;
   }
-  bool ok;
-  auto accused_index = ui.accused->text().toInt(&ok);
-  if (!ok) {
-    LOG4CXX_ERROR(logger,
-                  "invalid input: " << ui.accused->text().toStdString());
-  }
+  auto accused_index = ui.whoToRemove->currentIndex();
 
   int ret;
   sgx_status_t st;
-
-  auto result = ar_init();
+  auto result = accusation_result_init();
 
   auto stupid_mid_val_feeTx = ui.feeTx->toPlainText().toStdString();
-  auto stupid_mid_val_walletTx = ui.utxo->toPlainText().toStdString();
+  auto stupid_mid_val_walletTx = ui.walletTx->toPlainText().toStdString();
   st = accuse(eid, &ret, stupid_mid_val_feeTx.c_str(),
               stupid_mid_val_walletTx.c_str(), accused_index, &result);
 
@@ -99,11 +102,37 @@ void WalletForm::on_accuseButton_clicked(bool) {
     }
     LOG4CXX_ERROR(logger, "error return code " << ret);
   } else {
-    ui.Tx1->setPlainText(
-        QString::fromStdString(hexStr(result.tx1, result.tx1_len)));
-    ui.Tx2->setPlainText(
-        QString::fromStdString(hexStr(result.tx2, result.tx2_len)));
-    ui.TxAppeal->setPlainText(
-        QString::fromStdString(hexStr(result.tx_appeal, result.tx_appeal_len)));
+    ui.output->setPlainText(
+        QString("Tx1=%1\n\nTx2=%2")
+            .arg(hexStr(result.tx1, result.tx1_len).c_str())
+            .arg(hexStr(result.tx2, result.tx2_len).c_str()));
+  }
+}
+
+void WalletForm::on_appealActionButton_clicked(bool) {
+  if (ui.lifesignalTx->toPlainText().isEmpty() ||
+      0 == ui.whoToAppeal->count()) {
+    qCritical("Empty input");
+    return;
+  }
+
+  auto accused_index = ui.whoToRemove->currentIndex();
+
+  int ret = 0;
+  sgx_status_t st;
+  auto result = appeal_result_init();
+
+  LOG4CXX_ERROR(logger, "here");
+
+  auto stupid_mid_val = ui.lifesignalTx->toPlainText().toStdString();
+  st = appeal(eid, &ret, stupid_mid_val.c_str(), accused_index, &result);
+  if (SGX_SUCCESS != st || ret != 0) {
+    if (SGX_SUCCESS != st) {
+      print_error_message(st);
+    }
+    LOG4CXX_ERROR(logger, "error return code " << ret);
+  } else {
+    ui.output->setPlainText(QString("tx appeal (hex) =%1")
+                                .arg(hexStr(result.tx, result.len).c_str()));
   }
 }

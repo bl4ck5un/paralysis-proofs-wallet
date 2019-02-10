@@ -25,12 +25,12 @@ private:
   bool no_gui;
 
 public:
-  Config(int argc, const char *argv[]): no_gui(false) {
+  Config(int argc, const char *argv[]) : no_gui(false) {
     try {
       po::options_description desc("Paralysis Proofs Wallet");
-      desc.add_options()
-      ("help,h", "print this message")
-      ("no-gui", po::bool_switch(&no_gui)->default_value(false),"disable GUI (default: false).");
+      desc.add_options()("help,h", "print this message")(
+          "no-gui", po::bool_switch(&no_gui)->default_value(false),
+          "disable GUI (default: false).");
 
       po::variables_map vm;
       po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -51,9 +51,7 @@ public:
       exit(-1);
     }
   }
-  bool isShowGui() const {
-    return !no_gui;
-  }
+  bool isShowGui() const { return !no_gui; }
 };
 
 #endif // PARALYSIS_PROOF_CONFIG_H

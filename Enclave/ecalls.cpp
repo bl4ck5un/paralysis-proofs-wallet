@@ -51,23 +51,38 @@ std::unique_ptr<ECCContext> ctx;
 
 #include "message.h"
 
+Party defaultManager() { return Party("sgx"); }
+
+vector<Party> defaultUsers() {
+  vector<string> names = {"alice", "bob", "char", "david", "eve"};
+  vector<Party> users;
+
+  for (const auto &name : names) {
+    users.emplace_back(name);
+  }
+
+  return users;
+}
+
+Wallet defaultWallet() {
+  auto users = defaultUsers();
+  auto sgx = defaultManager();
+
+  // FIXME using a fixed expiration time (144 blocks = 24 hours)
+  Wallet wallet(users, sgx, 144);
+
+  return wallet;
+}
+
 int accuse(const char *_feePaymentTx, const char *_walletUtxoTx,
            size_t who_to_accuse, AccusationResult *result) {
   if (!ctx) {
     ctx = std::unique_ptr<ECCContext>(new ECCContext());
   }
   try {
-    vector<string> names = {"alice", "bob", "char", "david", "eve"};
-    vector<Party> users;
+    auto wallet = defaultWallet();
+    auto sgx = defaultManager();
 
-    for (const auto &name : names) {
-      users.emplace_back(name);
-    }
-
-    Party sgx("sgx");
-
-    // FIXME using a fixed expiration time (144 blocks = 24 hours)
-    Wallet wallet(users, sgx, 144);
     LL_DEBUG("%s", wallet.ToString().c_str());
     LL_DEBUG("wallet redeemScript: %s",
              ScriptToStr(wallet.redeemScript()).c_str());
@@ -82,9 +97,8 @@ int accuse(const char *_feePaymentTx, const char *_walletUtxoTx,
 
     auto tuple = wallet.accuse(dust_op, wallet_op, who_to_accuse,
                                sgx.GetSecret(), fixed_rate);
-    LifeSignal ls = std::get<0>(tuple);
-    CTransaction tx1 = std::get<1>(tuple);
-    CTransaction tx2 = std::get<2>(tuple);
+    CTransaction tx1 = std::get<0>(tuple);
+    CTransaction tx2 = std::get<1>(tuple);
 
     auto size = tx2arbuf(result->tx1, tx1);
     result->tx1_len = size;
@@ -92,14 +106,31 @@ int accuse(const char *_feePaymentTx, const char *_walletUtxoTx,
     size = tx2arbuf(result->tx2, tx2);
     result->tx2_len = size;
 
-    // appeal to a life signal
-    auto life_signal_tx_hex = tx2hex(tx1);
-    auto tx_appeal =
-        wallet.appeal(who_to_accuse, users[who_to_accuse].GetSecret(),
-                      OutPointWithTx(life_signal_tx_hex, ls.GetScriptPubKey()));
+    return 0;
+  }
+  CATCH_STD_AND_ALL
+}
 
-    size = tx2arbuf(result->tx_appeal, tx_appeal);
-    result->tx_appeal_len = size;
+int appeal(const char *life_signal_tx, size_t who_to_accuse,
+           AppealResult *result) {
+  if (!ctx) {
+    ctx = std::unique_ptr<ECCContext>(new ECCContext());
+  }
+
+  try {
+    auto wallet = defaultWallet();
+    auto users = defaultUsers();
+
+    // appeal to a life signal
+    auto ls = wallet.GetLifeSignals().at(who_to_accuse);
+    auto user = users.at(who_to_accuse);
+
+    auto tx_appeal =
+        wallet.appeal(who_to_accuse, user.GetSecret(),
+                      OutPointWithTx(life_signal_tx, ls.GetScriptPubKey()));
+
+    auto size = tx2arbuf(result->tx, tx_appeal);
+    result->len = size;
 
     return 0;
   }
@@ -124,9 +155,9 @@ void test_paralysis() {
     Wallet wallet(users, sgx, 144);
     LL_NOTICE("%s", wallet.ToString().c_str());
     LL_LOG("wallet redeemScript: %s",
-             ScriptToStr(wallet.redeemScript()).c_str());
+           ScriptToStr(wallet.redeemScript()).c_str());
     LL_LOG("wallet scriptPubKey: %s",
-             ScriptToStr(wallet.scriptPubkey()).c_str());
+           ScriptToStr(wallet.scriptPubkey()).c_str());
 
     string dust_tx_hex =
         "020000000001017dbab870699def97d4d8453e94f256bfc8505941768c37f1dcea0563"
@@ -156,18 +187,23 @@ void test_paralysis() {
     LL_DEBUG("dust tx (hex): %s", dust_tx_hex.c_str());
     LL_DEBUG("wallet tx (hex): %s", wallet_deposit_tx_hex.c_str());
 
-    auto result = ar_init();
+    auto accusation_result = accusation_result_init();
+    auto appeal_result = appeal_result_init();
 
     MUST_TRUE(0 == accuse(dust_tx_hex.c_str(), wallet_deposit_tx_hex.c_str(), 0,
-                          &result));
+                          &accusation_result));
 
     LL_NOTICE("tx1 (hex): %s",
-              HexStr(result.tx1, result.tx1 + result.tx1_len).c_str());
-    LL_NOTICE("tx2 (hex): %s",
-              HexStr(result.tx2, result.tx2 + result.tx2_len).c_str());
-    LL_NOTICE("tx_appeal (hex): %s",
-              HexStr(result.tx_appeal, result.tx_appeal + result.tx_appeal_len)
+              HexStr(accusation_result.tx1,
+                     accusation_result.tx1 + accusation_result.tx1_len)
                   .c_str());
+    LL_NOTICE("tx2 (hex): %s",
+              HexStr(accusation_result.tx2,
+                     accusation_result.tx2 + accusation_result.tx2_len)
+                  .c_str());
+    LL_NOTICE(
+        "tx_appeal (hex): %s",
+        HexStr(appeal_result.tx, appeal_result.tx + appeal_result.len).c_str());
   }
   CATCH_STD_AND_ALL_NO_RET
 }

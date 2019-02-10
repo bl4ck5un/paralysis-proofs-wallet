@@ -22,55 +22,35 @@ set(CMAKE_AUTOUIC ON)
 
 add_executable(pp
         ../common/message.c
-        pp.cpp
+        main.cpp
         pp.ui
         enclave-utils.cpp
         interrupt.cpp
         Enclave_u.c
         ui.cpp
-        ${BRIDGE_SRC})
+        wallet.cpp)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-find_package(Jsoncpp REQUIRED)
-find_package(JsonCppRpc REQUIRED)
-find_package(CURL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS program_options filesystem thread)
-find_package(OpenSSL REQUIRED)
+find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 find_package(Log4CXX REQUIRED)
 
 #find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
 
 include_directories(
         Qt5::Widgets
-        ${CURL_INCLUDE_DIRS}
-        ${JSONCPP_INCLUDE_DIRS}/${JSONCPP_INCLUDE_PREFIX}
-        ${JSONRPCCPP_INCLUDE_DIRS}
-        ${SGXSDK_INCLUDE_DIRS}
-        ${Boost_INCLUDE_DIRS}
-        ${OPENSSL_INCLUDE_DIR}
+        Boost::program_options
         ${LOG4CXX_INCLUDE_DIR}
+        ${SGXSDK_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(RPC_LIB_BUNDLE
-        ${CURL_LIBRARIES}
-        ${JSONCPP_LIBRARIES}
-        ${JSONRPCCPP_LIBRARIES}
-        )
-
-set(COMMON_LIBS
-        ${LOG4CXX_LIBRARY}
-        )
-
 target_link_libraries(pp
         Qt5::Widgets
-        ${RPC_LIB_BUNDLE}
-        ${COMMON_LIBS}
-        ${Boost_LIBRARIES}
+        Boost::program_options
+        Boost::filesystem
         ${LOG4CXX_LIBRARY}
-        ${OPENSSL_CRYPTO_LIBRARY}
         -L${SGX_LIBRARY_PATH} -l${SGX_URTS_LIB} -l${SGX_USVC_LIB}
         -lpthread
         )
