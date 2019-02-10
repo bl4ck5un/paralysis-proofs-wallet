@@ -1,5 +1,5 @@
 #include "Enclave_u.h"
-#include "Utils.h"
+#include "enclave-utils.h"
 #include "bitcoindrpcclient.h"
 
 #include "../common/utils.h"

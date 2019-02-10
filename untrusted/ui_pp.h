@@ -10,6 +10,7 @@
 #define UI_PP_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QFrame>
@@ -17,21 +18,28 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSplitter>
+#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextBrowser>
+#include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
 
-class Ui_Wallet
+class Ui_MainWindow
 {
 public:
+    QAction *actionQuit;
+    QAction *actionLoadWallet;
+    QWidget *Wallet;
     QVBoxLayout *verticalLayout_3;
-    QLabel *label_6;
     QLabel *label_5;
     QHBoxLayout *horizontalLayout_2;
     QGroupBox *left;
@@ -65,20 +73,42 @@ public:
     QPushButton *exitButton;
     QSpacerItem *horizontalSpacer;
     QLabel *label_7;
+    QMenuBar *menubar;
+    QMenu *menuFile;
+    QMenu *menuHelp;
+    QStatusBar *statusbar;
+    QToolBar *toolBar;
 
-    void setupUi(QWidget *Wallet)
+    void setupUi(QMainWindow *MainWindow)
     {
-        if (Wallet->objectName().isEmpty())
-            Wallet->setObjectName(QString::fromUtf8("Wallet"));
-        Wallet->resize(1742, 1604);
+        if (MainWindow->objectName().isEmpty())
+            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
+        MainWindow->resize(1742, 1703);
+        MainWindow->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+        actionQuit = new QAction(MainWindow);
+        actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
+        QIcon icon;
+        QString iconThemeName = QString::fromUtf8("application-exit");
+        if (QIcon::hasThemeIcon(iconThemeName)) {
+            icon = QIcon::fromTheme(iconThemeName);
+        } else {
+            icon.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
+        }
+        actionQuit->setIcon(icon);
+        actionLoadWallet = new QAction(MainWindow);
+        actionLoadWallet->setObjectName(QString::fromUtf8("actionLoadWallet"));
+        QIcon icon1;
+        iconThemeName = QString::fromUtf8("document-open");
+        if (QIcon::hasThemeIcon(iconThemeName)) {
+            icon1 = QIcon::fromTheme(iconThemeName);
+        } else {
+            icon1.addFile(QString::fromUtf8("."), QSize(), QIcon::Normal, QIcon::Off);
+        }
+        actionLoadWallet->setIcon(icon1);
+        Wallet = new QWidget(MainWindow);
+        Wallet->setObjectName(QString::fromUtf8("Wallet"));
         verticalLayout_3 = new QVBoxLayout(Wallet);
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        label_6 = new QLabel(Wallet);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setAlignment(Qt::AlignCenter);
-
-        verticalLayout_3->addWidget(label_6);
-
         label_5 = new QLabel(Wallet);
         label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setAlignment(Qt::AlignCenter);
@@ -254,45 +284,76 @@ public:
 
         verticalLayout_3->addLayout(lower);
 
+        MainWindow->setCentralWidget(Wallet);
+        menubar = new QMenuBar(MainWindow);
+        menubar->setObjectName(QString::fromUtf8("menubar"));
+        menubar->setGeometry(QRect(0, 0, 1742, 41));
+        menuFile = new QMenu(menubar);
+        menuFile->setObjectName(QString::fromUtf8("menuFile"));
+        menuHelp = new QMenu(menubar);
+        menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
+        MainWindow->setMenuBar(menubar);
+        statusbar = new QStatusBar(MainWindow);
+        statusbar->setObjectName(QString::fromUtf8("statusbar"));
+        MainWindow->setStatusBar(statusbar);
+        toolBar = new QToolBar(MainWindow);
+        toolBar->setObjectName(QString::fromUtf8("toolBar"));
+        MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
-        retranslateUi(Wallet);
+        menubar->addAction(menuFile->menuAction());
+        menubar->addAction(menuHelp->menuAction());
+        menuFile->addAction(actionLoadWallet);
+        menuFile->addAction(actionQuit);
+        menuHelp->addAction(actionQuit);
+        toolBar->addAction(actionLoadWallet);
+        toolBar->addAction(actionQuit);
 
-        QMetaObject::connectSlotsByName(Wallet);
+        retranslateUi(MainWindow);
+
+        QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
 
-    void retranslateUi(QWidget *Wallet)
+    void retranslateUi(QMainWindow *MainWindow)
     {
-        Wallet->setWindowTitle(QApplication::translate("Wallet", "Form", nullptr));
-        label_6->setText(QApplication::translate("Wallet", "v0.0.1", nullptr));
-        label_5->setText(QApplication::translate("Wallet", "(This is a demo. Don't use it with real coins!!)", nullptr));
-        left->setTitle(QApplication::translate("Wallet", "Wallet Information", nullptr));
-        label->setText(QApplication::translate("Wallet", "RedeemScript", nullptr));
-        redeemScript->setPlaceholderText(QApplication::translate("Wallet", "hex string for the wallet redeemScript", nullptr));
-        label_2->setText(QApplication::translate("Wallet", "Wallet UTXO", nullptr));
-        utxo->setPlaceholderText(QApplication::translate("Wallet", "hex string for the wallet deposit TX", nullptr));
-        loadButton->setText(QApplication::translate("Wallet", "Load Wallet Information", nullptr));
-        walletinfo->setPlaceholderText(QApplication::translate("Wallet", "Wallet info will appear here...", nullptr));
-        right->setTitle(QApplication::translate("Wallet", "Change Access Control", nullptr));
-        label_3->setText(QApplication::translate("Wallet", "accuse who:", nullptr));
-        accused->setPlaceholderText(QApplication::translate("Wallet", "e.g., 0, 1, 2, ...", nullptr));
-        label_4->setText(QApplication::translate("Wallet", "Fee Payment Tx", nullptr));
-        feeTx->setPlaceholderText(QApplication::translate("Wallet", "hex string for the fee payment TX", nullptr));
-        accuseButton->setText(QApplication::translate("Wallet", "Accues!", nullptr));
-        Tx1->setPlaceholderText(QApplication::translate("Wallet", "TX1 will appear here...", nullptr));
-        Tx2->setPlaceholderText(QApplication::translate("Wallet", "TX2 will appear here...", nullptr));
-        TxAppeal->setPlaceholderText(QApplication::translate("Wallet", "TX_appeal will appear here", nullptr));
-        copyTx1Button->setText(QApplication::translate("Wallet", "Copy Tx1", nullptr));
-        copyTx2Button->setText(QApplication::translate("Wallet", "Copy Tx2", nullptr));
-        copyTxAppealButton->setText(QApplication::translate("Wallet", "Copy Tx Appeal", nullptr));
-        loadExampleButton->setText(QApplication::translate("Wallet", "Load Example", nullptr));
-        exitButton->setText(QApplication::translate("Wallet", "Quit", nullptr));
-        label_7->setText(QApplication::translate("Wallet", "\302\251 bl4ck5unxx@gmail.com", nullptr));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
+        actionQuit->setText(QApplication::translate("MainWindow", "Quit", nullptr));
+        actionLoadWallet->setText(QApplication::translate("MainWindow", "Load", nullptr));
+#ifndef QT_NO_TOOLTIP
+        actionLoadWallet->setToolTip(QApplication::translate("MainWindow", "Load Wallet", nullptr));
+#endif // QT_NO_TOOLTIP
+        Wallet->setWindowTitle(QApplication::translate("MainWindow", "Form", nullptr));
+        label_5->setText(QApplication::translate("MainWindow", "(This is a demo. Don't use it with real coins!!)", nullptr));
+        left->setTitle(QApplication::translate("MainWindow", "Wallet Information", nullptr));
+        label->setText(QApplication::translate("MainWindow", "RedeemScript", nullptr));
+        redeemScript->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the wallet redeemScript", nullptr));
+        label_2->setText(QApplication::translate("MainWindow", "Wallet UTXO", nullptr));
+        utxo->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the wallet deposit TX", nullptr));
+        loadButton->setText(QApplication::translate("MainWindow", "Load Wallet Information", nullptr));
+        walletinfo->setPlaceholderText(QApplication::translate("MainWindow", "Wallet info will appear here...", nullptr));
+        right->setTitle(QApplication::translate("MainWindow", "Change Access Control", nullptr));
+        label_3->setText(QApplication::translate("MainWindow", "accuse who:", nullptr));
+        accused->setPlaceholderText(QApplication::translate("MainWindow", "e.g., 0, 1, 2, ...", nullptr));
+        label_4->setText(QApplication::translate("MainWindow", "Fee Payment Tx", nullptr));
+        feeTx->setPlaceholderText(QApplication::translate("MainWindow", "hex string for the fee payment TX", nullptr));
+        accuseButton->setText(QApplication::translate("MainWindow", "Accues!", nullptr));
+        Tx1->setPlaceholderText(QApplication::translate("MainWindow", "TX1 will appear here...", nullptr));
+        Tx2->setPlaceholderText(QApplication::translate("MainWindow", "TX2 will appear here...", nullptr));
+        TxAppeal->setPlaceholderText(QApplication::translate("MainWindow", "TX_appeal will appear here", nullptr));
+        copyTx1Button->setText(QApplication::translate("MainWindow", "Copy Tx1", nullptr));
+        copyTx2Button->setText(QApplication::translate("MainWindow", "Copy Tx2", nullptr));
+        copyTxAppealButton->setText(QApplication::translate("MainWindow", "Copy Tx Appeal", nullptr));
+        loadExampleButton->setText(QApplication::translate("MainWindow", "Load Example", nullptr));
+        exitButton->setText(QApplication::translate("MainWindow", "Quit", nullptr));
+        label_7->setText(QApplication::translate("MainWindow", "\302\251 bl4ck5unxx@gmail.com", nullptr));
+        menuFile->setTitle(QApplication::translate("MainWindow", "&File", nullptr));
+        menuHelp->setTitle(QApplication::translate("MainWindow", "Help", nullptr));
+        toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", nullptr));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class Wallet: public Ui_Wallet {};
+    class MainWindow: public Ui_MainWindow {};
 } // namespace Ui
 
 QT_END_NAMESPACE

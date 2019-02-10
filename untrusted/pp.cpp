@@ -11,11 +11,8 @@
 #include <log4cxx/logger.h>
 
 #include "Enclave_u.h"
-#include "Utils.h"
-#include "bitcoindrpcclient.h"
+#include "enclave-utils.h"
 #include "config.h"
-#include "enclave-rpc-server-impl.h"
-#include "external/toml.h"
 #include "interrupt.h"
 
 #include "ui.h"
@@ -31,6 +28,8 @@ sgx_enclave_id_t eid;
 int main(int argc, char *argv[]) {
   log4cxx::PropertyConfigurator::configure(LOGGING_CONF);
 
+  Config config(argc, (const char**) argv);
+
   if (0 != initialize_enclave(&eid)) {
     cerr << "failed to init enclave" << endl;
     exit(-1);
@@ -44,11 +43,17 @@ int main(int argc, char *argv[]) {
     LOG4CXX_ERROR(logger, "ecall failed with return value " << st);
   }
 
-  QApplication app(argc, argv);
-  WalletForm wallet_ui;
-  wallet_ui.show();
-  wallet_ui.setWindowTitle("Paralysis-Proofs Wallet");
-  app.exec();
+  if (config.isShowGui()) {
+    QApplication app(argc, argv);
+    WalletForm wallet_ui;
+    wallet_ui.show();
+    wallet_ui.setWindowTitle("Paralysis-Proofs Wallet");
+    app.exec();
+  } else {
+    LOG4CXX_DEBUG(logger, "GUI disabled.");
+  }
+
+
 
   LOG4CXX_INFO(logger, "exiting...");
 

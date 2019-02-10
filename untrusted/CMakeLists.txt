@@ -23,8 +23,8 @@ set(CMAKE_AUTOUIC ON)
 add_executable(pp
         ../common/message.c
         pp.cpp
-        bitcoind-rpc.cpp
-        Utils.cpp
+        pp.ui
+        enclave-utils.cpp
         interrupt.cpp
         Enclave_u.c
         ui.cpp
@@ -80,6 +80,6 @@ add_dependencies(pp enclave)
 add_custom_command(TARGET pp
         POST_BUILD
         COMMAND cp -f ${CMAKE_CURRENT_SOURCE_DIR}/logging.conf
-        ${CMAKE_SOURCE_DIR}/config.toml
+        ${CMAKE_SOURCE_DIR}/example-wallet.json
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         COMMENT "Installing the configuration files")

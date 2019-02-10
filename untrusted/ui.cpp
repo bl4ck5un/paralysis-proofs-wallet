@@ -1,6 +1,6 @@
 #include "ui.h"
 #include "Enclave_u.h"
-#include "Utils.h"
+#include "enclave-utils.h"
 
 #include <sgx_eid.h>
 #include <sgx_error.h>
@@ -8,10 +8,12 @@
 #include "../common/message.h"
 #include "default-values.h"
 
+#include <QFileDialog>
+
 extern sgx_enclave_id_t eid;
 
 WalletForm::WalletForm(QWidget *parent)
-    : QWidget(parent), logger(log4cxx::Logger::getLogger(__FILE__)) {
+    : QMainWindow(parent), logger(log4cxx::Logger::getLogger(__FILE__)) {
   ui.setupUi(this);
 }
 
@@ -45,6 +47,23 @@ void WalletForm::on_loadButton_clicked(bool) {
 }
 
 void WalletForm::on_exitButton_clicked(bool) { QApplication::quit(); }
+
+void WalletForm::on_actionQuit_triggered(bool) { QApplication::quit(); }
+
+void WalletForm::on_actionLoadWallet_triggered(bool) {
+  QFileDialog getWallet(this);
+  getWallet.setFileMode(QFileDialog::ExistingFile);
+  getWallet.setViewMode(QFileDialog::Detail);
+
+  QStringList fileName;
+  if (getWallet.exec()) {
+    fileName = getWallet.selectedFiles();
+  }
+
+  Q_ASSERT(fileName.size() == 1);
+
+  ui.statusbar->showMessage(QString("%1 selected.").arg(fileName[0]));
+}
 
 void WalletForm::on_loadExampleButton_clicked(bool) {
   ui.redeemScript->setPlainText(DEFAULT_REDEEMSCRIPT);

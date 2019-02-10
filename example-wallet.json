@@ -1,0 +1,11 @@
+{
+    "version": "0.0.1",
+    "users": [
+        {
+            "name": "alice",
+            "pubkey": "xyz"
+        }
+    ],
+    "manager_pubkey": "xyz",
+    "grace_period": 144
+}

@@ -1,8 +1,0 @@
-[fairness]
-leader="localhost:1200"
-followers = [
-    "localhost:1234",
-    "localhost:1235",
-]
-
-

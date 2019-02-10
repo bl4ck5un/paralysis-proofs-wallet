@@ -2,7 +2,7 @@
 #include <sgx_urts.h>
 #include <stdexcept>
 
-#include "Utils.h"
+#include "enclave-utils.h"
 
 #include <fstream>
 #include <iostream>

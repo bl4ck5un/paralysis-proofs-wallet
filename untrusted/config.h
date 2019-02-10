@@ -11,11 +11,8 @@
 #include <string>
 
 #include "Enclave_u.h"
-#include "Utils.h"
-#include "bitcoindrpcclient.h"
+#include "enclave-utils.h"
 
-#include "enclave-rpc-server-impl.h"
-#include "external/toml.h"
 #include "interrupt.h"
 
 namespace po = boost::program_options;
@@ -25,23 +22,15 @@ using namespace std;
 
 class Config {
 private:
-  string identity;
-  string identity_dir;
-  bool is_fairness_leader;
-  string config_file;
-  string leader_addr;
-  vector<string> follower_addr_list;
+  bool no_gui;
 
 public:
-  Config(int argc, const char *argv[]) {
+  Config(int argc, const char *argv[]): no_gui(false) {
     try {
-      po::options_description desc("Allowed options");
-      desc.add_options()("help,h", "print this message")(
-          "c,config", po::value(&config_file)->default_value("config.toml"),
-          "config file")(
-          "l,leader",
-          po::bool_switch(&is_fairness_leader)->default_value(false),
-          "work as the fairness leader");
+      po::options_description desc("Paralysis Proofs Wallet");
+      desc.add_options()
+      ("help,h", "print this message")
+      ("no-gui", po::bool_switch(&no_gui)->default_value(false),"disable GUI (default: false).");
 
       po::variables_map vm;
       po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -61,32 +50,9 @@ public:
       cerr << "Unknown error!" << endl;
       exit(-1);
     }
-
-    ifstream conf_ifs(config_file);
-    toml::ParseResult pr = toml::parse(conf_ifs);
-
-    if (!pr.valid()) {
-      cerr << pr.errorReason << endl;
-      exit(-1);
-    }
-
-    try {
-      const toml::Value &v = pr.value;
-      leader_addr = v.get<string>("fairness.leader");
-      follower_addr_list = v.get<vector<string>>("fairness.followers");
-    } catch (const exception &e) {
-      cerr << "invalid config file: " << e.what() << endl;
-      exit(-1);
-    }
   }
-
-  const string &getIdentity() const { return identity; }
-  const string &getIdentity_dir() const { return identity_dir; }
-  bool getIsFairnessLeader() const { return is_fairness_leader; }
-
-  const string &getLeaderAddr() const { return leader_addr; }
-  const vector<string> &getFollowerAddrList() const {
-    return follower_addr_list;
+  bool isShowGui() const {
+    return !no_gui;
   }
 };
 
