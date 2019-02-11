@@ -11,6 +11,7 @@
 #include <QErrorMessage>
 #include <QFileDialog>
 #include <QtGlobal>
+#include <iostream>
 
 extern sgx_enclave_id_t eid;
 
@@ -26,8 +27,6 @@ WalletForm::WalletForm(Wallet *c, QWidget *parent)
   ui.userInfoView->setVisible(false);
   ui.userInfoView->resizeColumnsToContents();
 }
-
-#include <iostream>
 
 void WalletForm::on_actionQuit_triggered(bool) { QApplication::quit(); }
 

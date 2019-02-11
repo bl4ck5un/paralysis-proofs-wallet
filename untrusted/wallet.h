@@ -57,7 +57,7 @@ public:
 
     QStringList labels;
     labels << "Name"
-           << "Pubkey key";
+           << "Public key";
     model->setHorizontalHeaderLabels(labels);
 
     for (int i = 0; i < _users.size(); i++) {

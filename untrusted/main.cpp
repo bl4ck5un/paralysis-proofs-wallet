@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     WalletForm wallet_ui(&psw);
     wallet_ui.show();
-    wallet_ui.setWindowTitle("Paralysis-Proofs Wallet");
+    wallet_ui.setWindowTitle("Paralysis-Proof Wallet");
     app.exec();
   } else {
     LOG4CXX_DEBUG(logger, "GUI disabled.");
