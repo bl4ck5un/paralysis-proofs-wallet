@@ -37,19 +37,18 @@ struct Results {
   Results() = default;
 
   double mean() const {
-      double sum = std::accumulate(std::begin(result), std::end(result), 0.0);
-      return sum / result.size();
+    double sum = std::accumulate(std::begin(result), std::end(result), 0.0);
+    return sum / result.size();
   }
 
   double std() const {
-      double accum = 0.0;
-      double m = mean();
+    double accum = 0.0;
+    double m = mean();
 
-      std::for_each (std::begin(result), std::end(result), [&](const double d) {
-          accum += (d - m) * (d - m);
-      });
+    std::for_each(std::begin(result), std::end(result),
+                  [&](const double d) { accum += (d - m) * (d - m); });
 
-      return sqrt(accum / (result.size()-1));
+    return sqrt(accum / (result.size() - 1));
   }
 };
 
@@ -95,24 +94,25 @@ public:
     auto result = accusation_result_init();
 
     for (size_t i = 0; i < cases.size(); i++) {
-        for (int round = 0; round < n_round; round++) {
-            const auto test_case = cases.at(i);
-            startCase(i);
-            st = _benchmark_accuse(eid, &ret, test_case.fee_payment_tx.c_str(),
-                                   test_case.wallet_tx.c_str(), test_case.n, &result);
+      for (int round = 0; round < n_round; round++) {
+        const auto test_case = cases.at(i);
+        startCase(i);
+        st = _benchmark_accuse(eid, &ret, test_case.fee_payment_tx.c_str(),
+                               test_case.wallet_tx.c_str(), test_case.n,
+                               &result);
 
-            stopCase(i);
+        stopCase(i);
 
-            if (SGX_SUCCESS != st || ret != 0) {
-                if (SGX_SUCCESS != st) {
-                    print_error_message(st);
-                }
-                LOG4CXX_ERROR(logger, "error return code " << ret);
-                throw std::invalid_argument("error");
-            }
+        if (SGX_SUCCESS != st || ret != 0) {
+          if (SGX_SUCCESS != st) {
+            print_error_message(st);
+          }
+          LOG4CXX_ERROR(logger, "error return code " << ret);
+          throw std::invalid_argument("error");
         }
+      }
 
-        LOG4CXX_INFO(logger, "benchmark " << i << " finished");
+      LOG4CXX_INFO(logger, "benchmark " << i << " finished");
     }
   }
 
