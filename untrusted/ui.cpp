@@ -11,6 +11,7 @@
 #include <QErrorMessage>
 #include <QFileDialog>
 #include <QtGlobal>
+#include <chrono>
 #include <iostream>
 
 extern sgx_enclave_id_t eid;
@@ -40,11 +41,15 @@ void WalletForm::on_actionLoadWallet_triggered(bool) {
     fileName = getWallet.selectedFiles();
   }
 
+  if (fileName.isEmpty()) {
+    ui.statusbar->showMessage("user canceled");
+  }
+
   Q_ASSERT(fileName.size() == 1);
 
   try {
-    controller->loadJSON(fileName[0].toStdString());
-    ui.statusbar->showMessage(QString("%1 loaded.").arg(fileName[0]), 5000);
+    controller->loadJSON(fileName.at(0).toStdString());
+    ui.statusbar->showMessage(QString("%1 loaded.").arg(fileName.at(0), 5000));
 
     ui.info->setTitle(
         QString("Wallet %1").arg(controller->get_wallet_address().c_str()));
@@ -79,6 +84,10 @@ void WalletForm::on_loadAppealExampleButton_clicked(bool) {
   ui.lifesignalTx->setPlainText(DEFAULT_LIFE_SIGNAL_TX);
 }
 
+using std::chrono::duration_cast;
+using std::chrono::high_resolution_clock;
+using std::chrono::microseconds;
+
 void WalletForm::on_removeActionButton_clicked(bool) {
   if (ui.feeTx->toPlainText().isEmpty() || 0 == ui.whoToRemove->count()) {
     qCritical("Empty input");
@@ -92,8 +101,12 @@ void WalletForm::on_removeActionButton_clicked(bool) {
 
   auto stupid_mid_val_feeTx = ui.feeTx->toPlainText().toStdString();
   auto stupid_mid_val_walletTx = ui.walletTx->toPlainText().toStdString();
+
+  auto _start = high_resolution_clock::now();
   st = accuse(eid, &ret, stupid_mid_val_feeTx.c_str(),
               stupid_mid_val_walletTx.c_str(), accused_index, &result);
+
+  auto _end = high_resolution_clock::now();
 
   if (SGX_SUCCESS != st || ret != 0) {
     if (SGX_SUCCESS != st) {
@@ -105,6 +118,10 @@ void WalletForm::on_removeActionButton_clicked(bool) {
         QString("Tx1=%1\n\nTx2=%2")
             .arg(hexStr(result.tx1, result.tx1_len).c_str())
             .arg(hexStr(result.tx2, result.tx2_len).c_str()));
+
+    ui.statusbar->showMessage(
+        QString("transaction generated in %1 us")
+            .arg(duration_cast<microseconds>(_end - _start).count()));
   }
 }
 
@@ -124,7 +141,11 @@ void WalletForm::on_appealActionButton_clicked(bool) {
   LOG4CXX_ERROR(logger, "here");
 
   auto stupid_mid_val = ui.lifesignalTx->toPlainText().toStdString();
+
+  auto _start = high_resolution_clock::now();
   st = appeal(eid, &ret, stupid_mid_val.c_str(), accused_index, &result);
+  auto _end = high_resolution_clock::now();
+
   if (SGX_SUCCESS != st || ret != 0) {
     if (SGX_SUCCESS != st) {
       print_error_message(st);
@@ -133,5 +154,9 @@ void WalletForm::on_appealActionButton_clicked(bool) {
   } else {
     ui.output->setPlainText(QString("tx appeal (hex) =%1")
                                 .arg(hexStr(result.tx, result.len).c_str()));
+
+    ui.statusbar->showMessage(
+        QString("transaction generated in %1 us")
+            .arg(duration_cast<microseconds>(_end - _start).count()));
   }
 }

@@ -162,13 +162,6 @@ public:
   const static size_t nOutForLifeSignalOutput;
 };
 
-static opcodetype EncodeOP_N(int n) {
-  assert(n >= 0 && n <= 16);
-  if (n == 0)
-    return OP_0;
-  return (opcodetype)(OP_1 + n - 1);
-}
-
 class Wallet {
 private:
   vector<Party> _users;
@@ -211,7 +204,7 @@ public:
       }
     }
 
-    auto N_USER = EncodeOP_N(current_users.size());
+    auto N_USER = current_users.size();
 
     CScript sc;
     sc << OP_IF;

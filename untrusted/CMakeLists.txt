@@ -28,6 +28,7 @@ add_executable(pp
         interrupt.cpp
         Enclave_u.c
         ui.cpp
+        benchmark.cpp
         wallet.cpp)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)

@@ -21,8 +21,6 @@ int parse_wallet_info(const char *_redeemScript, const char *_walletUtxoTx) {
     auto walletUtxoTx = OutPointWithTx(
         _walletUtxoTx, GetScriptForDestination(CScriptID(redeemScript)));
 
-    LL_NOTICE("here");
-
     return 0;
   }
   CATCH_STD_AND_ALL
@@ -74,6 +72,38 @@ Wallet defaultWallet() {
   return wallet;
 }
 
+vector<Party> defaultUsersForBenchmark(size_t n) {
+  vector<Party> users;
+  for (size_t i = 0; i < n; i++) {
+    users.emplace_back(std::to_string(i));
+  }
+
+  return users;
+}
+
+Wallet defaultWalletForBenchmark(size_t n) {
+  auto users = defaultUsersForBenchmark(n);
+  auto sgx = defaultManager();
+
+  return Wallet(users, sgx, 144);
+}
+
+void benchmark_init(size_t start, size_t stop, size_t step) {
+  auto sgx = defaultManager();
+  printf_std("sgx: %s\n", sgx.Address().ToString().c_str());
+  for (size_t i = start; i < stop; i += step) {
+    auto w = defaultWalletForBenchmark(i);
+    printf_std("%d, %s\n", i, w.Address().ToString().c_str());
+  }
+}
+
+//! generate a transaction accusing an user
+//! \param _feePaymentTx
+//! \param _walletUtxoTx
+//! \param who_to_accuse
+//! \param result
+//! \return
+// TODO: take as input a list of user public key
 int accuse(const char *_feePaymentTx, const char *_walletUtxoTx,
            size_t who_to_accuse, AccusationResult *result) {
   if (!ctx) {
@@ -209,7 +239,47 @@ void test_paralysis() {
 }
 
 int enclaveTest() {
-  test_paralysis();
+  if (!ctx) {
+    ctx = std::unique_ptr<ECCContext>(new ECCContext());
+  }
+  //  test_paralysis();
 
+  try {
+
+    benchmark_init(5, 505, 10);
+  }
+  CATCH_STD_AND_ALL
   return 0;
+}
+
+int _benchmark_accuse(const char *_feePaymentTx, const char *_walletUtxoTx,
+                      size_t n, AccusationResult *result) {
+  if (!ctx) {
+    ctx = std::unique_ptr<ECCContext>(new ECCContext());
+  }
+  try {
+    auto wallet = defaultWalletForBenchmark(n);
+    auto sgx = defaultManager();
+
+    auto dust_op = OutPointWithTx(string(_feePaymentTx), sgx.ScriptPubkey());
+    auto wallet_op =
+        OutPointWithTx(string(_walletUtxoTx), wallet.scriptPubkey());
+
+    CFeeRate fixed_rate(10000); // FIXME using a static 10000 Satoshi / KB
+
+    // always accuse the first user for the purpose of benchmark
+    auto tuple =
+        wallet.accuse(dust_op, wallet_op, 0, sgx.GetSecret(), fixed_rate);
+    CTransaction tx1 = std::get<0>(tuple);
+    CTransaction tx2 = std::get<1>(tuple);
+
+    auto size = tx2arbuf(result->tx1, tx1);
+    result->tx1_len = size;
+
+    size = tx2arbuf(result->tx2, tx2);
+    result->tx2_len = size;
+
+    return 0;
+  }
+  CATCH_STD_AND_ALL
 }

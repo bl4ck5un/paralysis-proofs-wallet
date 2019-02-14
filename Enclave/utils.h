@@ -48,6 +48,16 @@
     LL_CRITICAL("unknown error happened");                                     \
   }
 
+#define MUST_TRUE(c)                                                           \
+  do {                                                                         \
+    if (!(c)) {                                                                \
+      char buf[BUFSIZ] = {'\0'};                                               \
+      snprintf(buf, sizeof buf, "assertion failed at %s:%d",                   \
+               strrchr(__FILE__, '/') + 1, __LINE__);                          \
+      throw std::runtime_error(buf);                                           \
+    }                                                                          \
+  } while (false)
+
 using bytes = std::vector<uint8_t>;
 
 #ifdef __cplusplus

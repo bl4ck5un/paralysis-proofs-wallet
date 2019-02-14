@@ -11,6 +11,7 @@
 #include <log4cxx/logger.h>
 
 #include "Enclave_u.h"
+#include "benchmark.h"
 #include "config.h"
 #include "enclave-utils.h"
 #include "interrupt.h"
@@ -35,12 +36,17 @@ int main(int argc, char *argv[]) {
     exit(-1);
   }
 
-  sgx_status_t st;
-  int ret = 0;
+  //  st = enclaveTest(eid, &ret);
+  //  if (st != SGX_SUCCESS) {
+  //    LOG4CXX_ERROR(logger, "ecall failed with return value " << st);
+  //  }
 
-  st = enclaveTest(eid, &ret);
-  if (st != SGX_SUCCESS) {
-    LOG4CXX_ERROR(logger, "ecall failed with return value " << st);
+  if (!config.isRunBenchmark().empty()) {
+    Benchmark benchmark(config.isRunBenchmark());
+    benchmark.run();
+    benchmark.ToString();
+
+    std::exit(0);
   }
 
   if (config.isShowGui()) {

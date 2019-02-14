@@ -6,20 +6,11 @@
 #include "bitcoin/script/script.h"
 #include "bitcoin/streams.h"
 #include "bitcoin/utilstrencodings.h"
+#include "utils.h"
 #include <bitcoin/primitives/transaction.h>
 #include <stdio.h>
 #include <tlibc/mbusafecrt.h>
 #include <vector>
-
-#define MUST_TRUE(c)                                                           \
-  do {                                                                         \
-    if (!(c)) {                                                                \
-      char buf[BUFSIZ] = {'\0'};                                               \
-      snprintf(buf, sizeof buf, "assertion failed at %s:%d",                   \
-               strrchr(__FILE__, '/') + 1, __LINE__);                          \
-      throw std::runtime_error(buf);                                           \
-    }                                                                          \
-  } while (false)
 
 std::string ScriptToAsmStr(const CScript &script);
 std::string ScriptToStr(const CScript &script);

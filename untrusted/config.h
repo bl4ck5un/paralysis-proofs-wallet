@@ -21,14 +21,16 @@ using namespace std;
 class Config {
 private:
   bool no_gui;
+  string run_benchmark;
 
 public:
-  Config(int argc, const char *argv[]) : no_gui(false) {
+  Config(int argc, const char *argv[]) : no_gui(false), run_benchmark("") {
     try {
       po::options_description desc("Paralysis Proofs Wallet");
       desc.add_options()("help,h", "print this message")(
           "no-gui", po::bool_switch(&no_gui)->default_value(false),
-          "disable GUI (default: false).");
+          "disable GUI (default: false).")(
+          "benchmark", po::value<string>(&run_benchmark), "run benchmark.");
 
       po::variables_map vm;
       po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -50,6 +52,7 @@ public:
     }
   }
   bool isShowGui() const { return !no_gui; }
+  string isRunBenchmark() const { return run_benchmark; }
 };
 
 #endif // PARALYSIS_PROOF_CONFIG_H
