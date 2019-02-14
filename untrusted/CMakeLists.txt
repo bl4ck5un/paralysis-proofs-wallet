@@ -13,7 +13,7 @@ add_custom_command(
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(CMAKE_PREFIX_PATH /home/fanz/bin/Qt/5.12.1/gcc_64)
+set(CMAKE_PREFIX_PATH /opt/Qt/5.12.1/gcc_64)
 
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)

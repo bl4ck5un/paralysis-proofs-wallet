@@ -6,8 +6,6 @@
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
-#include <jsonrpccpp/client/connectors/httpclient.h>
-#include <jsonrpccpp/server/connectors/httpserver.h>
 #include <string>
 
 #include "Enclave_u.h"
