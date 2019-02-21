@@ -32,7 +32,9 @@ struct Case {
 };
 
 struct Results {
-  size_t size;
+  size_t n_users;
+  size_t tx1_size;
+  size_t tx2_size;
   vector<uint32_t> result;
   Results() = default;
 
@@ -82,10 +84,12 @@ public:
   const Case &getCase(size_t i) const { return cases.at(i); }
   void startCase(size_t i) { tmp = high_resolution_clock::now(); }
 
-  void stopCase(size_t i) {
+  void stopCase(size_t i, const AccusationResult *ar) {
     auto now = high_resolution_clock::now();
-    results[i].size = cases[i].n;
+    results[i].n_users = cases[i].n;
     results[i].result.push_back(duration_cast<microseconds>(now - tmp).count());
+    results[i].tx1_size = ar->tx1_len;
+    results[i].tx2_size = ar->tx2_len;
   }
 
   void run() {
@@ -101,7 +105,7 @@ public:
                                test_case.wallet_tx.c_str(), test_case.n,
                                &result);
 
-        stopCase(i);
+        stopCase(i, &result);
 
         if (SGX_SUCCESS != st || ret != 0) {
           if (SGX_SUCCESS != st) {
@@ -117,8 +121,10 @@ public:
   }
 
   void ToString() const {
+    std::cout << "size mean std txsize_1 txsize_2" << std::endl;
     for (const auto &r : results) {
-      std::cout << r.size << " " << r.mean() << " " << r.std() << std::endl;
+      std::cout << r.n_users << " " << r.mean() << " " << r.std() << " "
+                << r.tx1_size << " " << r.tx2_size << std::endl;
     }
   }
 };
