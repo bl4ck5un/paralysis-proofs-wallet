@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     WalletForm wallet_ui(&psw);
     wallet_ui.show();
     wallet_ui.setWindowTitle("Paralysis-Proof Wallet");
-    app.exec();
+    QApplication::exec();
   } else {
     LOG4CXX_DEBUG(logger, "GUI disabled.");
   }

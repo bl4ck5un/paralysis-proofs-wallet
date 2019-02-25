@@ -8,7 +8,7 @@
 #include "bitcoin/utilstrencodings.h"
 #include "utils.h"
 #include <bitcoin/primitives/transaction.h>
-#include <stdio.h>
+#include <cstdio>
 #include <tlibc/mbusafecrt.h>
 #include <vector>
 

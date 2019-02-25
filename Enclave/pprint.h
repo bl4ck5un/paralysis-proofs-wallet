@@ -1,4 +1,4 @@
-#include "stddef.h"
+#include <cstddef>
 
 #ifndef DEBUG_H_
 #define DEBUG_H_

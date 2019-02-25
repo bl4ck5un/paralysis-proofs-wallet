@@ -26,7 +26,7 @@ extern const char *log_level_strings[];
 
 // The BUILD_LOG_LEVEL defines what will be compiled in the executable, in
 // production it should be set to LVL_NOTICE
-#define LOG_SHOULD_I(level) (level <= LOG_BUILD_LEVEL && level <= log_run_level)
+#define LOG_SHOULD_I(level) ((level) <= LOG_BUILD_LEVEL && (level) <= log_run_level)
 
 #define LOG(level, fmt, arg...)                                                \
   do {                                                                         \

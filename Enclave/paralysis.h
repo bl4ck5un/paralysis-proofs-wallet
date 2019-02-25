@@ -11,7 +11,7 @@
 #include "bitcoin/pubkey.h"
 #include "bitcoin/script/sign.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using std::move;
 using std::string;
@@ -29,8 +29,8 @@ public:
     secret.Set(other.secret.begin(), other.secret.end(),
                other.secret.IsCompressed());
   }
-  explicit Party(const string &name)
-      : _name(name), secret(secret_key_from_string_hash(_name)) {
+  explicit Party(string name)
+      : _name(move(name)), secret(secret_key_from_string_hash(_name)) {
     auto _pubkey = secret.GetPubKey();
     pubkey.Set(_pubkey.begin(), _pubkey.end());
   }
